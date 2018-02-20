@@ -1,0 +1,137 @@
+\documentclass{article}
+
+\usepackage[margin=0.1in]{geometry}
+\usepackage{booktabs}
+\usepackage{tipa}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usetikzlibrary{fit}
+\usepackage{color}
+\usepackage{multirow}
+\usepackage{hyperref}
+
+
+\newcommand{\nextForm}[1]{\rotatebox[origin=c]{270}{$_{\curvearrowright}$}$_{#1}$}
+
+\begin{document}
+
+
+\begin{figure}
+  \begin{tikzpicture}
+
+    \node(UG)[purple,align = center] at (-1,-1) {\textbf{Programming language}\\\textbf{(Universal Grammar)}};
+    \newcommand*{\universalX}{13}%
+
+
+    \node(sounds) at (\universalX - 3.5,-0.3) {Phoneme Inventory};
+    \node(soundExamples)[draw,align = center] at (\universalX - 3.5,-1.3) {\textipa{@, p, E, 2, k}\\\textipa{a, 3, A, O, d}\\$\cdots$};
+
+    \node at (\universalX + 0.5,-0.3) {Program space};
+    \node(programSpace)[red,draw,align = left] at (\universalX + 0.5,-1.3) {$\mathcal{M}\to \mathcal{A} | $\verb|stem|$|\mathcal{M}+\mathcal{M}$\\$\mathcal{P}\to \mathcal{R}\circ \mathcal{R}\circ \cdots \circ \mathcal{R}$};
+
+    \node(featureSpace) at (\universalX - 7,-0.3) {Feature space};
+    \node(featureExamples)[draw,align = center] at (\universalX - 7,-1.3) {\verb|voiced|, \verb|vowel|\\\verb|obstruent|, \verb|nasal|\\$\cdots$};
+
+    \draw[thick,->] (featureExamples.east) -- (soundExamples.west);
+    \draw[thick,->] (soundExamples.east) -- (programSpace.west);
+
+
+    \node(universalBox)[purple,draw,ultra thick, fit = (sounds) (featureSpace) (featureExamples) (soundExamples) (programSpace)] {};
+    \draw(lowerCausalArrow)[thick,->] (featureExamples.south) .. controls (\universalX - 3,-2.5) ..  (programSpace.south);
+
+    \node(morphology)[blue,align = center] at (-1,-5) {\textbf{Language-specific}\\\textbf{morphophonology}};
+    \draw[ultra thick,->] (UG.south) -- (morphology.north);
+
+    \newcommand*{\syntheticX}{15.5}%
+    \newcommand*{\ChineseX}{10.5}%
+
+    \node(AABmorphologyLabel) at (\syntheticX-0.5,-3.5) {AAB Morphology};
+    \node(AABmorphology) [draw,align = left] at (\syntheticX-0.5,-4){ \verb|A|$+$\verb|B|};
+
+    \node(AABphonologyLabel) at (\syntheticX - 0.5,-5.5) {AAB Phonology};
+    \node(AABphonology) [draw,align = left] at (\syntheticX - 0.5,-6) {%
+      $r_1$:      $\varnothing\to \sigma_i$\verb| / | $\sigma_i$\verb|_|$\sigma$};
+    \node(AABmorphologyBox)[blue,draw,ultra thick, fit = (AABmorphologyLabel) (AABphonology) (AABmorphology)] {};
+
+    \node(ChinesemorphologyLabel) at (\ChineseX - 0.5,-3.5) {Chinese Morphology};
+    \node(Chinesemorphology) [draw,align = left] at (\ChineseX - 0.5,-4){ \verb|stem|+/\textipa{d@}/};
+
+    \node(ChinesephonologyLabel) at (\ChineseX - 0.5,-5.5) {Chinese Phonology};
+    \node(Chinesephonology) [draw,align = left] at (\ChineseX - 0.5,-6) {%
+      $r_1$:      $\varnothing\to \sigma_i$\verb| / |$\sigma_i$ \verb|_| \textipa{d@}};
+    \node(ChinesemorphologyBox)[blue,draw,ultra thick, fit = (ChinesemorphologyLabel) (Chinesephonology) (Chinesemorphology)] {};
+
+
+
+    \node(polishMorphologyLabel) at (4.5 - 0.5,-3.5) {Polish Morphology};
+    \node(polishMorphology) [draw,align = left] at (4.5 - 0.5,-4.3) {\verb|singular|$\to$ \verb|stem|\\\verb|plural|$\to$ \verb|stem|$ + $ /\textipa{i}/};
+
+    \node at (4.5 - 0.5,-5.5+0.4) {Polish Phonology};
+    \node(polishPhonology) [draw,align = left] at (4.5 - 0.5,-6.3+0.4) {%
+      $r_1$: \textipa{o}$\to$\textipa{u}$/$\verb|_[-nasal +voice]#|\\%
+      $r_2$: \verb|[-sonorant]|$\to$\verb|[-voice]|$/$\verb|_#|};
+    \node(polishMorphologyBox)[blue,draw,ultra thick, fit = (polishMorphologyLabel) (polishPhonology)] {};
+
+    \draw[ultra thick,->] (universalBox.south) -- (AABmorphologyBox.north);
+    \draw[ultra thick,->] (universalBox.south) -- (ChinesemorphologyBox.north);
+    \draw[ultra thick,->] (universalBox.south) -- (polishMorphologyBox.north);
+    
+    \node(lexicon)[magenta,align = above] at (-1,-10) {\textbf{Observed data}};
+    \draw[ultra thick,->] (morphology.south)-- (lexicon.north);
+
+    \node(p1) [align = left] at (\syntheticX + 1,-7.5) {\verb|A|$+$\verb|B:| \textipa{pofe}};
+    \node(w1) [align = left] at (\syntheticX + 1,-8) {\verb|A|$+$\verb|B:| \textipa{wug@}};
+    \node(p2) [draw,align = left] at (\syntheticX - 1 - 1,-9.5) {\textipa{pofe}\nextForm{r_1}\\\textipa{popofe}};
+    \draw [thick,->] (p1.west) -- (p2.north);
+    
+    \node(w2) [draw,align = left] at (\syntheticX + 1 - 1,-9.5) {\textipa{wug@}\nextForm{r_1}\\\textipa{wuwug@}};
+    \draw [thick,->] (w1.south) -- (w2.north);
+    \node(aablexicon) [label = {[name = l] \small \emph{lexicon:}},black,draw,fit = (w1) (p1)] {};    
+    \node[magenta,draw,align= left](AABvocabulary) at (\syntheticX - 1,-11.5){\textipa{popofe}, \textipa{wuwug@}, $\cdots$ };
+    \draw [thick,->] (p2.south) -- (AABvocabulary.north);
+    \draw [thick,->] (w2.south) -- (AABvocabulary.north);
+    \node(AABlexiconBox)[black,draw,ultra thick, fit = (p2) (w2) (AABvocabulary)] {}; %(l) (aablexicon) 
+    \draw [ultra thick,->] (AABmorphologyBox.south) -- (AABlexiconBox.north);
+%    \draw [->] (soundExamples.south) -- (aablexicon.west);
+
+    \node(p1) [align = left] at (\ChineseX + 1.5,-7.5) {\textipa{xau}};
+    \node(w1) [align = left] at (\ChineseX + 1.5,-8) {\textipa{\c{c}in}};
+    \node(p2) [draw,align = left] at (\ChineseX - 1 - 1,-9.5) {\textipa{xaud@}\nextForm{r_1}\\\textipa{xauxaud@}};
+    \draw [thick,->] (p1.west) -- (p2.north);
+    
+    \node(w2) [draw,align = left] at (\ChineseX + 1 - 1,-9.5) {\textipa{\c{c}ind@}\nextForm{r_1}\\\textipa{\c{c}in\c{c}ind@}};
+    \draw [thick,->] (w1.south) -- (w2.north);
+
+    \node(chineseLexicon) [label = {[name = l] \small \emph{lexicon:}},black,draw,fit = (w1) (p1)] {};
+    
+    \node[magenta,draw,align= left](Chinesevocabulary) at (\ChineseX - 1,-11.5){\textipa{xauxaud@}, \textipa{\c{c}in\c{c}ind@}, $\cdots$ };
+    \draw [thick,->] (p2.south) -- (Chinesevocabulary.north);
+    \draw [thick,->] (w2.south) -- (Chinesevocabulary.north);
+    \node(ChineselexiconBox)[black,draw,ultra thick, fit = (Chinesevocabulary) (p2) (w2)] {};
+    \draw [ultra thick,->] (ChinesemorphologyBox.south) -- (ChineselexiconBox.north);  
+
+
+    
+    \node(crib) at (6.5,-7.6) {\verb|horn:| \textipa{rog}};
+    \node(polishLexicon)[label = {[name = l] \small \emph{lexicon:}},black,draw,fit = (crib)] {};
+    \node(Cingular)[draw,align = left] at (3.5-0.5,-9.5) {\verb|singular:|\\ \textipa{rog}\nextForm{r_1}\\\textipa{rug}\nextForm{r_2}\\\textipa{ruk}};
+    \node(plural)[draw,align = left] at (5.5-0.5,-9.5) {\verb|plural:|\\ \textipa{rogi}\nextForm{r_1}\\\textipa{rogi}\nextForm{r_2}\\\textipa{rogi}};
+    \draw [thick,->] (crib.south) -- (Cingular.north);
+    \draw [thick,->] (crib.south) -- (plural.north);
+
+    \node[magenta,draw,align = left] (polishObservation) at (4.5-0.5,-11.5) {\verb|horn, singular:| \textipa{ruk}\\\verb|horn, plural:| \textipa{rogi}};
+    \draw [thick,->] (Cingular.south) -- (polishObservation.north);
+    \draw [thick,->] (plural.south) -- (polishObservation.north);
+
+    \node(polishData)[black,draw,ultra thick, fit = (Cingular) (plural) (polishObservation)] {};
+    \draw [ultra thick,->] (polishMorphologyBox.south) -- (polishData.north);
+    
+  \end{tikzpicture}
+  %% \caption{{\color{red}Red}: Both the morphology $\mathcal{M}$ and
+  %%   phonology $\mathcal{P}$ are programs either build through
+  %%   concatenation or function composition
+  %%   (Tables~\ref{morphologyGrammar} \&~\ref{phonologyGrammar}). These programs explain how words are built in both natural languages ({\color{blue}blue}) and synthetic languages used in infant studies of rule learning ({\color{green}green}). Learners observe pronunciations of words ({\color{orange}orange}) in order to recover these programs, but with the aid of a strong inductive bias (Universal Grammar, {\color{purple}purple})}.
+  %% \label{beautiful}
+\end{figure}
+
+\end{document}
