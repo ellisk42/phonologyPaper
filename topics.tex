@@ -217,6 +217,35 @@ viewing the space of possible grammars,
 and understanding the different trade-offs
 between the grammars.
 
+As an example of how the Pareto front offers a lens on the
+space of possible hypotheses,
+consider the upper left Pareto front in figure~\ref{quadrupleFrontier} (\emph{aab, 1 example}).
+Here the learner has seen a single word, [\textipa{vEfefe}].
+Some grammars living on the Pareto frontier are:
+\begin{itemize}
+\item \textbf{A grammar that does nothing:} In the lower right-hand corner of~\ref{quadrupleFrontier}
+  is the grammar labeled ``surface=underlying'',
+  which just says that every word (a ``surface pronunciation'')
+  is represented (``underlyingly'') literally how it is pronounced.
+  The observed word [\textipa{vEfefe}] is represented as /\textipa{vEfefe}/, which has 6 symbols,
+  giving a fit to the data of -6.
+\item \textbf{A grammar that duplicates syllables:} Highlighted in dark red in~\ref{quadrupleFrontier}
+  is a grammar with the single rule $\varnothing\to\sigma_i/\_\sigma_i$\texttt{\#},
+  which inserts a copy of the last syllable syllable.
+  This rule generates the word [\textipa{vEfefe}] by starting with the stem (i.e., underlying form) /\textipa{vEfe}/ (which has 4 symbols, fit to data of -4) and then applying the rule in the grammar,
+  which copies the last syllable and makes [\textipa{vEfefe}].
+\item \textbf{A grammar that duplicates syllables and appends
+  morphemes:} Highlighted in pink in~\ref{quadrupleFrontier} are
+  grammars that duplicate a syllable but also append or prepend extra
+  morphemes.  These correspond to generalizations where the learner
+  believes that different parts of [\textipa{vEfefe}] correspond to
+  prefixes or suffixes in the language.  For example, the grammar in
+  the upper left corner incorporates the suffix /\textipa{fe}/ as well
+  as the prefix /\textipa{vE}/, and explains the observation using an
+  underlying form that is completely empty (fit to data of 0) -- this
+  grammar has memorized the observed data, and so maximally compresses
+  it, but at the cost of having many symbols inside of the grammar (22 symbols, vs 6 symbols in the grammar that just duplicates a syllable).  
+  \end{itemize}
 
 \begin{figure}[H]
 
@@ -235,11 +264,13 @@ learning problems and use it to solve phonology textbook exercises.
 Each of these textbook exercises is an inductive reasoning problem
 where the learner must explain surface pronunciations in terms of a
 latent generative model (a grammar).
-Figure~\ref{naturalLanguageExample} shows our model solving a
+
+These natural language results are still pulmonary and
+ongoing. Figure~\ref{naturalLanguageExample} shows our model solving a
 representative textbook problem.  We believe this extension two
 natural language is an important next step for models of artificial
-grammar learning,
-and helps deliver on the basic promises and presuppositions of AGL research.
+grammar learning, and helps deliver on the basic promises and
+presuppositions of AGL research.
 
 
 
