@@ -18,7 +18,7 @@
 \usepackage{algorithm}
 \usepackage{algorithmic}
 
-\title{Automatically generating alternative hypotheses and controls}
+\title{Automatically Exploring Hypothesis Spaces}
 %\author{Kevin Ellis, Timothy O'Donnell}
 
 \newcommand{\nextForm}[1]{\rotatebox[origin=c]{270}{$_{\curvearrowright}$}$_{#1}$}
@@ -53,6 +53,15 @@ collection of utterances.
 Once we have a prior and a likelihood,
 we know how to evaluate how well a grammar explains the data, modulo the assumptions implicit in the
 prior and likelihood.
+
+In this work we will use this probabilistic framing
+to explore spaces of grammars
+that an AGL learner could use to explain
+the pronunciations of words.
+Here the grammars will be SPE-style rewrite rules~\cite{chomsky1968sound},
+commonly used in generative phonology,
+but at a high level this framing can apply to
+learning other aspects of grammar like semantics~\cite{piantadosi2011learning}, syntax~\cite{perfors2011learnability}, and morphology~\cite{tim}.
 
 A simple and intuitive prior over grammars is one which penalizes longer grammars and favors parsimonious grammars, for example defining $\probability\left[\text{grammar} \right]\propto\exp\left(- \text{\# symbols in grammar} \right)$. An example of a likelihood model,
 and the one we use here,
@@ -93,7 +102,7 @@ finding that our model automatically discovers the grammars that
 \begin{table}[h!]
 \centering\begin{tabular}{lcll}
   \toprule
-  Grammar&Example input to learner&MAP grammar&Natural language analogues\\\midrule
+  Grammar&Example input to learner&Grammar we infer&Natural language analogues\\\midrule
   \begin{tabular}{l}
     ABA (same/different/same)\\
   Marcus et al. 1999.     
