@@ -13,7 +13,7 @@
 \usepackage{multirow}
 \usepackage{hyperref}
 \usepackage{amsfonts}       % blackboard math symbols
-
+\usepackage{phonrule} 
  % For algorithms
 \usepackage{algorithm}
 \usepackage{algorithmic}
@@ -36,7 +36,7 @@
 
 \subsection{A Probabilistic Framing}
 
-The goal of the grammar learner, whether it is a child, linguist, or computer program, is to
+A goal of the grammar learner, whether it is a child, linguist, or computer program, is to
 infer the grammar that gave rise to
 a collection of utterances.
 One way of
@@ -53,7 +53,6 @@ collection of utterances.
 Once we have a prior and a likelihood,
 we know how to evaluate how well a grammar explains the data, modulo the assumptions implicit in the
 prior and likelihood.
-
 In this work we will use this probabilistic framing
 to explore spaces of grammars
 that an AGL learner could use to explain
@@ -63,7 +62,31 @@ commonly used in generative phonology,
 but at a high level this framing can apply to
 learning other aspects of grammar like semantics~\cite{piantadosi2011learning}, syntax~\cite{perfors2011learnability}, and morphology~\cite{tim}.
 
-A simple and intuitive prior over grammars is one which penalizes longer grammars and favors parsimonious grammars, for example defining $\probability\left[\text{grammar} \right]\propto\exp\left(- \text{\# symbols in grammar} \right)$. An example of a likelihood model,
+\noindent\textbf{SPE-style rewrite notation:} Each SPE-style rewrite rule is a function that both inputs and outputs a sequence of phonemes.
+These rewrites are written as ``\phonb{input}{output}{left}{right}'' %$\text{input}\to\text{output }/\text{ left } \_ \text{ right}$'',
+which means that ``input'' gets rewritten to ``output'' whenever ``left'' is to the left and ``right'' is to the right.
+Some special symbols used in these rules are \# to mean the start or end of the input;
+C/V to mean a consonant/vowel; $\sigma $ to mean a syllable;
+and $\varnothing$ to mean the empty string.
+For example, the rule
+\phonb{$\sigma $}{$\varnothing$}{\#}{C}
+deletes a syllable at the start of a word if it is followed by a consonant.
+Rules can refer to sets of phonemes by writing down vectors of phonological features -- for example,
+the rule \phon{[-son]}{[+voice]} rewrites segments that are -sonorant (e.g., \textipa{k,d,v,S,...}) to their voiced counterparts (e.g., \textipa{g,d,v,Z,...}).
+Rules can also bind variables to phonemes or syllables,
+which are written using subscripts;
+for example,
+\phonr{C$_i$}{$\varnothing$}{C$_i$}
+%$\text{\texttt{C}}_i\to\varnothing / \_ \text{\texttt{C}}_i$
+deletes a consonant if it is followed by the same consonant,
+and
+\phonb{$ \varnothing $}{$\sigma _i$}{#}{$\sigma _i$}
+%$\varnothing\to\sigma_i / \text{\texttt{\#}}\_\sigma_i$
+inserts a copy of a word initial syllable.
+The special subscript ``0" means zero or more occurrences of the subscripted segment,
+so for example \phonl{V}{[+hi]}{[+hi][ ]$_0$} means that vowels become +hi whenever there exists a +hi phoneme anywhere to the left.
+
+\noindent \textbf{Prior \& Likelihood:} A simple and intuitive prior over grammars is one which penalizes longer grammars and favors parsimonious grammars, for example defining $\probability\left[\text{grammar} \right]\propto\exp\left(- \text{\# symbols in grammar} \right)$. An example of a likelihood model,
 and the one we use here,
 is just to count the number of extra bits or symbols needed to encode an utterance given the grammar\footnote{This is equivalent to a minimum description length (MDL) interpretation}.
 
@@ -93,8 +116,8 @@ The fundamental hypothesis underlying AGL research is that
 artificial grammar learning must engage some shared resource with first language acquisition --
 and so we can gain insights into first language acquisition by
 instead studying AGL in controlled experiments.
-Our contribution here is the demonstration that
-a single BPL model can explain how a learner can quickly infer a grammar represented as SPE--style rules.
+Our demonstration here is that
+a BPL model can explain how a learner can quickly (e.g., from very little data) infer a grammar represented as SPE--style rules.
 We collected grammars from AGL datasets~\cite{gerken2010infants,marcus1999rule,frank2011three}
 and presented our BPL learner with data drawn from these grammars (Table~\ref{artificialGrammarTable}),
 finding that our model automatically discovers the grammars that
@@ -102,9 +125,11 @@ finding that our model automatically discovers the grammars that
 \begin{table}[h!]
 \centering\begin{tabular}{lcll}
   \toprule
-  Grammar&Example input to learner&Grammar we infer&Natural language analogues\\\midrule
+  Grammar&\begin{tabular}{c}
+    Example input \\to learner
+    \end{tabular}&Inferred grammar&Natural language analogues\\\midrule
   \begin{tabular}{l}
-    ABA (same/different/same)\\
+    ABA \\
   Marcus et al. 1999.     
     \end{tabular}&
   \begin{tabular}{l}
@@ -113,11 +138,12 @@ finding that our model automatically discovers the grammars that
     fimufi
   \end{tabular}&
   \begin{tabular}{l}
-$\varnothing\to \sigma_i$\verb| / #_|$\sigma \sigma_i$
+    \phonb{$\varnothing $}{$\sigma _i$}{\#}{$\sigma \sigma _i$}
+%$\varnothing\to \sigma_i/$\texttt{\#\_}$\sigma \sigma_i$
   \end{tabular}& Reduplication (eg, Tagalog)
   \\\midrule
   \begin{tabular}{l}
-      ABB (different/same/same)\\
+      ABB\\
   Marcus et al. 1999. 
     \end{tabular}&
   \begin{tabular}{l}
@@ -126,11 +152,12 @@ $\varnothing\to \sigma_i$\verb| / #_|$\sigma \sigma_i$
     fimumu
   \end{tabular}&
   \begin{tabular}{l}
-$\varnothing\to \sigma_i$\verb| / |$\sigma_i$\verb|_#|
+    \phonb{$\varnothing $}{$\sigma _i$}{$\sigma _i$}{\#}
+    %$\varnothing\to \sigma_i/\sigma_i$\texttt{\_\#}
   \end{tabular}&
   Reduplication (eg, Tagalog)\\\midrule
   \begin{tabular}{l}
-      ABx (different/different/constant)
+      ABx 
     \end{tabular}&
   \begin{tabular}{l}
         wofeka\\
@@ -138,11 +165,11 @@ $\varnothing\to \sigma_i$\verb| / |$\sigma_i$\verb|_#|
     fimuka
   \end{tabular}&
   \begin{tabular}{l}
-stem$ + x$
+stem$+x$
   \end{tabular}&concatenative morphology
   \\\midrule
   \begin{tabular}{l}
-    AAx (same/same/constant)\\Gerken 2006. %~\cite{gerken2010infants}
+    AAx \\Gerken 2006. %~\cite{gerken2010infants}
     \end{tabular}&
   \begin{tabular}{l}
         wowoka\\
@@ -150,14 +177,15 @@ stem$ + x$
     fifika
   \end{tabular}&
   \begin{tabular}{l}
-    stem + $x$\\
-$\varnothing\to \sigma_i$\verb| / #_|$\sigma_i$
+    stem+$x$\\
+    \phonb{$\varnothing $}{$\sigma _i$}{\#}{$\sigma _i$}
+%$\varnothing\to \sigma_i/$\texttt{\#\_}$\sigma_i$
   \end{tabular}&
   \begin{tabular}{l}
     reduplication\\concatenative morphology
     \end{tabular}\\\midrule
   \begin{tabular}{l}
-    AxA (same/constant/same)\\Gerken 2006. %~\cite{gerken2010infants}
+    AxA \\Gerken 2006. %~\cite{gerken2010infants}
     \end{tabular}&
   \begin{tabular}{l}
         wokawo\\
@@ -165,8 +193,9 @@ $\varnothing\to \sigma_i$\verb| / #_|$\sigma_i$
     fikafi
   \end{tabular}&
   \begin{tabular}{l}
-$x + $ stem\\
-    $\varnothing$ $\to\sigma_i$  / \verb|# _| $\sigma$ $\sigma_i$
+    $x+$stem\\
+    \phonb{$\varnothing $}{$\sigma _i$}{\#}{$\sigma \sigma _i$}
+    %$\varnothing$ $\to\sigma_i/$\texttt{\#\_}  $\sigma$ $\sigma_i$
   \end{tabular}&
   \begin{tabular}{l}
     Infixing\\Reduplication
@@ -181,15 +210,15 @@ $x + $ stem\\
     \textipa{\ae sk}$\to$\textipa{\ae ske}\\
   \end{tabular}&
   \begin{tabular}{l}
-      $\varnothing\to$\verb|C|$_i$ $/$ \verb|#C|$_i$\verb| [ ]* _ #|\\%
-      $\varnothing\to$ \textipa{e} $/$ \verb| _ #|\\%
- \verb|C|$\to\varnothing$ $/$ \verb|# _|
+    \phonb{$\varnothing $}{C$_i$}{\#C$_i$[ ]$_0$}{\#}\\
+    \phonr{$\varnothing $}{\textipa{e}}{\#}\\
+    \phonl{C}{$\varnothing $}{\#}
+ %%      $\varnothing\to$\texttt{C}$_i$ $/$\texttt{\#C}$_i$\texttt{[ ]*\_\#}\\%
+ %%      $\varnothing\to$ \textipa{e} $/$\texttt{\_\#}\\%
+ %% \texttt{C}$\to\varnothing$ $/$ \texttt{\#\_}
   \end{tabular}  & \begin{tabular}{l}
-    \textbf{Tim, is there an  analog?}\\
-    \textbf{word initial segments moves to  }\\
-    \textbf{word final?}
     \end{tabular}
-  \bottomrule  \end{tabular}
+\\  \bottomrule  \end{tabular}
 \caption{Using BPL to model artificial grammar learning. Learner given 5 examples.}\label{artificialGrammarTable}
 \end{table}
 
@@ -239,7 +268,9 @@ Some grammars living on the Pareto frontier are:
   The observed word [\textipa{vEfefe}] is represented as /\textipa{vEfefe}/, which has 6 symbols,
   giving a fit to the data of -6.
 \item \textbf{A grammar that duplicates syllables:} Highlighted in dark red in~\ref{quadrupleFrontier}
-  is a grammar with the single rule $\varnothing\to\sigma_i/\_\sigma_i$\texttt{\#},
+  is a grammar with the single rule
+  \phonr{$\varnothing $}{  $\sigma _i$}{$\sigma _i$\#}
+  %$\varnothing\to\sigma_i/\_\sigma_i$\texttt{\#},
   which inserts a copy of the last syllable syllable.
   This rule generates the word [\textipa{vEfefe}] by starting with the stem (i.e., underlying form) /\textipa{vEfe}/ (which has 4 symbols, fit to data of -4) and then applying the rule in the grammar,
   which copies the last syllable and makes [\textipa{vEfefe}].
@@ -258,8 +289,8 @@ Some grammars living on the Pareto frontier are:
 
 \begin{figure}[H]
 
-\includegraphics[width = 0.5\textwidth]{abb1.png} \includegraphics[width = 0.5\textwidth]{abb3.png}
-\includegraphics[width = 0.5\textwidth]{aax1.png} \includegraphics[width = 0.5\textwidth]{aax3.png}
+\includegraphics[width = 0.5\textwidth]{alternativeHypothesesFigures/abb1.png} \includegraphics[width = 0.5\textwidth]{alternativeHypothesesFigures/abb3.png}
+\includegraphics[width = 0.5\textwidth]{alternativeHypothesesFigures/aax1.png} \includegraphics[width = 0.5\textwidth]{alternativeHypothesesFigures/aax3.png}
   
   \caption{Pareto fronts for ABB  (Marcus~1999; top two) \& AAX  (Gerken~2006; bottom two) learning problems fo either one example word (left column) or three example words  (right column). Rightward on x-axis corresponds to more parsimonious grammars and upward on y-axis corresponds to grammars that best fit the data, so the best grammars live in the upper right corners of the graphs. {\color{red}Red shade}: ground truth grammar. {\color{red!60}Pink shade}: shares structure with ground truth grammar. White shade: incorrect generalizations. As the number of examples increases, the Pareto fronts develop a sharp kink around the ground truth grammar, which indicates a stronger preference for the correct grammar. With one example the kinks can still exists but are less pronounced.}\label{quadrupleFrontier}
 \end{figure}
@@ -274,9 +305,9 @@ Each of these textbook exercises is an inductive reasoning problem
 where the learner must explain surface pronunciations in terms of a
 latent generative model (a grammar).
 
-These natural language results are still pulmonary and
+These natural language results are still preliminary and
 ongoing. Figure~\ref{naturalLanguageExample} shows our model solving a
-representative textbook problem.  We believe this extension two
+representative textbook problem.  We believe this extension to
 natural language is an important next step for models of artificial
 grammar learning, and helps deliver on the basic promises and
 presuppositions of AGL research.
@@ -304,11 +335,11 @@ Number & Surface form
 \bottomrule
 \end{tabular}
   \end{minipage}%
-  \hspace{0.5cm}%
-  \begin{minipage}{6cm}\centering
+  \hspace{0.25cm}
+  \begin{minipage}{7cm}\centering
     \textbf{Our model's solution:}
     
-    Induced phonological rule: \texttt{C}$\to\varnothing /$\texttt{\#\_C} \\
+    Induced phonological rule: \phonb{C}{$\varnothing $}{\#}{C} \\ %\texttt{C}$\to\varnothing /$\texttt{\#\_C} \\
     \hspace{0.5cm}\emph{(Reduce word initial consonant clusters)}
 
     Induced underlying representations:
@@ -326,95 +357,6 @@ Number & Surface form
 
 
 
-
-
-
-%\pagebreak
-%% \begin{figure}
-%%   \begin{tikzpicture}
-%%     %  \draw[help lines] (0,0) grid (10,-10);
-%%     \node(UG)[purple,align = center,rotate = 90] at (1,-1) {\textbf{Universal}\\\textbf{Grammar}};
-%%     %\draw[ultra thick] (2,0) rectangle (13,-2.3);
-
-
-%%     \node(sounds) at (7,-0.3) {Phoneme Inventory};
-%%     \node(soundExamples)[draw,align = center] at (7,-1.3) {\textipa{@, p, E, 2, k}\\\textipa{a, 3, A, O, d}\\$\cdots$};
-
-%%     \node at (11,-0.3) {Program space};
-%%     \node(programSpace)[draw,align = left] at (11,-1.3) {$\mathcal{M}\to \mathcal{A} | $\verb|stem|$|\mathcal{M}+\mathcal{M}$\\$\mathcal{P}\to \mathcal{R}\circ \mathcal{R}\circ \cdots \circ \mathcal{R}$};
-
-%%     \node(featureSpace) at (3.5,-0.3) {Feature space};
-%%     \node(featureExamples)[draw,align = center] at (3.5,-1.3) {\verb|voiced|, \verb|vowel|\\\verb|obstruent|, \verb|nasal|\\$\cdots$};
-
-%%     \draw[thick,->] (featureExamples.east) -- (soundExamples.west);
-%%     \draw[thick,->] (soundExamples.east) -- (programSpace.west);
-
-
-%%     \node(universalBox)[purple,draw,ultra thick, fit = (sounds) (featureSpace) (featureExamples) (soundExamples) (programSpace)] {};
-%%     \draw(lowerCausalArrow)[thick,->] (featureExamples.south) .. controls (7,-2.5) ..  (programSpace.south);
-
-%%     \node(morphology)[blue,align = above,rotate = 90] at (1,-5) {\textbf{Programs}};
-%%     \draw[ultra thick,->] (UG.west) -- (morphology.east);
-
-%%     \node(ABAmorphologyLabel) at (10.5,-3.5) {Pig Latin Morphology};
-%%     \node(ABAmorphology) [draw,align = left] at (10.5,-4){ \verb|observation|$\to$\verb|stem|};
-
-%%     \node(ABAphonologyLabel) at (10.5,-5.3) {Pig Latin Phonology};
-%%     \node(ABAphonology) [draw,align = left] at (10.5,-6.3) {%
-%% $r_1$:      $\varnothing\to$\verb|C|$_i$ $/$ \verb|#C|$_i$\verb| [ ]* _ #|\\%
-%%       $r_2$:      $\varnothing\to$ \textipa{e} $/$ \verb| _ #|\\%
-%%     $r_3$: \verb|C|$\to\varnothing$ $/$ \verb|# _|};
-%%     \node(ABAmorphologyBox)[blue,draw,ultra thick, fit = (ABAmorphologyLabel) (ABAphonology)] {};
-    
-%%     %  \draw[ultra thick] (2,-3) rectangle (7,-7);
-
-%%     \node(polishMorphologyLabel) at (4.5,-3.5) {Polish Morphology};
-%%     \node(polishMorphology) [draw,align = left] at (4.5,-4.3) {\verb|singular|$\to$ \verb|stem|\\\verb|plural|$\to$ \verb|stem|$ + $ /\textipa{i}/};
-
-%%     \node at (4.5,-5.5) {Polish Phonology};
-%%     \node(polishPhonology) [draw,align = left] at (4.5,-6.3) {%
-%%       $r_1$: \textipa{o}$\to$\textipa{u}$/$\verb|_[-nasal +voice]#|\\%
-%%       $r_2$: \verb|[-sonorant]|$\to$\verb|[-voice]|$/$\verb|_#|};
-%%     \node(polishMorphologyBox)[blue,draw,ultra thick, fit = (polishMorphologyLabel) (polishPhonology)] {};
-
-%%     \draw[ultra thick,->] (universalBox.south) -- (ABAmorphologyBox.north);
-%%     \draw[ultra thick,->] (universalBox.south) -- (polishMorphologyBox.north);
-    
-%%     \node(lexicon)[magenta,align = center,rotate = 90] at (1,-10) {\textbf{Words}};
-%%     \draw[ultra thick,->] (morphology.west)-- (lexicon.east);
-
-%%     \node(p1) [align = left] at (9.5,-8) {\verb|LATIN:| \textipa{l\ae tIn}};
-%%     \node(p2) [draw,align = left] at (9.5,-9.5) {\textipa{l\ae tIn}\nextForm{r_1}\\\textipa{l\ae tInl}\nextForm{r_2}\\\textipa{l\ae tInle}\nextForm{r_3}\\\textipa{\ae tInle}}; %\\\textipa{l\ae tInle}}};
-%%     \draw [thick,->] (p1.south) -- (p2.north);
-    
-%%     \node(w1) [align = left] at (12,-8) {\verb|ASK:| \textipa{\ae sk}};
-%%     \node(w2) [draw,align = left] at (12,-9.5) {\textipa{\ae sk}\nextForm{r_1}\\\textipa{\ae sk}\nextForm{r_2}\\\textipa{\ae ske}\nextForm{r_3}\\\textipa{\ae ske}};
-%%     \draw [thick,->] (w1.south) -- (w2.north);
-    
-%%     \node[magenta,draw,align= left](ABAvocabulary) at (10.5,-11.5){\textipa{\ae tInle}, \textipa{\ae ske}, $\cdots$ };
-%%     \draw [thick,->] (p2.south) -- (ABAvocabulary.north);
-%%     \draw [thick,->] (w2.south) -- (ABAvocabulary.north);
-%%     \node(ABAlexiconBox)[draw,ultra thick, fit = (p1) (w1) (ABAvocabulary)] {};
-%%     \draw [ultra thick,->] (ABAmorphologyBox.south) -- (ABAlexiconBox.north);  
-
-%%     \node(crib) at (4.5,-8) {\verb|horn:| \textipa{rog}};
-%%     \node(Cingular)[draw,align = left] at (3.5,-9.5) {\verb|singular:|\\ \textipa{rog}\nextForm{r_1}\\\textipa{rug}\nextForm{r_2}\\\textipa{ruk}};
-%%     \node(plural)[draw,align = left] at (5.5,-9.5) {\verb|plural:|\\ \textipa{rogi}\nextForm{r_1}\\\textipa{rogi}\nextForm{r_2}\\\textipa{rogi}};
-%%     \draw [thick,->] (crib.south) -- (Cingular.north);
-%%     \draw [thick,->] (crib.south) -- (plural.north);
-
-%%     \node[magenta,draw,align = left] (polishObservation) at (4.5,-11.5) {\verb|horn, singular:| \textipa{\v{z}wop}\\\verb|horn, plural:| \textipa{\v{z}wubi}};
-%%     \draw [thick,->] (Cingular.south) -- (polishObservation.north);
-%%     \draw [thick,->] (plural.south) -- (polishObservation.north);
-
-%%     \node(polishLexicon)[draw,ultra thick, fit = (crib) (Cingular) (plural) (polishObservation)] {};
-%%     \draw [ultra thick,->] (polishMorphologyBox.south) -- (polishLexicon.north);
-    
-%%   \end{tikzpicture}
-%% \end{figure}
-
-
-%\bibliographystyle{named}
 \bibliographystyle{unsrt} \bibliography{main}
 
 
