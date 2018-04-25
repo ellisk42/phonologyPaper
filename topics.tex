@@ -80,7 +80,7 @@ for example,
 %$\text{\texttt{C}}_i\to\varnothing / \_ \text{\texttt{C}}_i$
 deletes a consonant if it is followed by the same consonant,
 and
-\phonb{$ \varnothing $}{$\sigma _i$}{#}{$\sigma _i$}
+\phonb{$ \varnothing $}{$\sigma _i$}{\#}{$\sigma _i$}
 %$\varnothing\to\sigma_i / \text{\texttt{\#}}\_\sigma_i$
 inserts a copy of a word initial syllable.
 The special subscript ``0" means zero or more occurrences of the subscripted segment,
@@ -126,7 +126,7 @@ finding that our model automatically discovers the grammars that
 \centering\begin{tabular}{lcll}
   \toprule
   Grammar&\begin{tabular}{c}
-    Example input \\to learner
+    Example input \\to model
     \end{tabular}&Inferred grammar&Natural language analogues\\\midrule
   \begin{tabular}{l}
     ABA \\
@@ -219,7 +219,7 @@ stem$+x$
   \end{tabular}  & \begin{tabular}{l}
     \end{tabular}
 \\  \bottomrule  \end{tabular}
-\caption{Using BPL to model artificial grammar learning. Learner given 5 examples.}\label{artificialGrammarTable}
+\caption{Using BPL to model artificial grammar learning. Model given 5 examples.}\label{artificialGrammarTable}
 \end{table}
 
 \subsection{Automatically exploring the space of alternative hypotheses}
@@ -314,7 +314,7 @@ presuppositions of AGL research.
 
 
 
-\begin{figure}[H]\centering
+\begin{figure}\centering
   \begin{minipage}{7cm}\centering
     \textbf{Textbook Tibetan counting problem:}
     \begin{tabular}{ll}\toprule
@@ -349,7 +349,7 @@ Number & Surface form
 5 & \textipa{Na}\\
 9 & \textipa{rgu}\\
 10 & \textipa{bd\super Zu}
-\bottomrule
+\\\bottomrule
 \end{tabular}    
   \end{minipage}
   \caption{Example textbook phonology exercise (left, taken from~\cite{9780511808869}) and the solution our model discovers for it (right). To solve this problem the model must jointly infer unobserved underlying representations for each of the Tibetan numbers, along with a phonological rule that explains their surface pronunciations. The same code that calculated the Pareto fronts (Figure~\ref{quadrupleFrontier}) produces this analysis of the Tibetan count system.}\label{naturalLanguageExample}
