@@ -649,25 +649,26 @@ with, called \texttt{incrementalCEGIS}. See the pseudocode at the top of the nex
 \begin{algorithmic}
   \STATE \textbf{\texttt{incrementalCEGIS}}:
   \STATE {\bfseries Input:} Matrix of inflected forms for $N$ lexemes, $X$
+  \STATE {\bfseries Hyperparameter:} Batch size $B$
   \STATE {\bfseries Output:} underlying forms, $\{u_n\}$; prefixes $\{p_i\}$; suffixes $\{s_i\}$; rules $\{r_j\}$
-  \STATE // Initialize training set $T$ with a single example
-  \STATE Set $T = $ inflections for any lexeme in $X$
-  \STATE // Find a solution for this single example, using as many rules as you need ($\infty$)
+  \STATE // Initialize training set $T$ with $B$ examples
+  \STATE Set $T = $ inflections for $B$ lexemes in $X$
+  \STATE // Find a solution for examples, using as many rules as you need ($\infty$)
   \STATE Set $\{r_j\}_{j = 1}^{B_R}, \{p_i\}, \{s_i\} = \text{solver}(T,\infty)$
   \REPEAT
   \STATE // Find the set of counterexamples $C$ inconsistent with our current guess as to what the solution is
   \STATE Set $C = \{x | x\in X \text{ and } x \text{ inconsistent with } \{r_j\}_{j = 1}^{B_R},\{p_i\}, \{s_i\}\}$
   \STATE // If there are no counterexamples as we are done
   \STATE \textbf{if} $C = \varnothing$ \textbf{ then return }$\{r_j\}_{j = 1}^{B_R},\{p_i\}, \{s_i\}$
-
+  \STATE // Add a batch of counterexamples to the training set
+  \STATE $T\gets T\cup \{C_j\}_{j = 1}^B$
   \STATE // Start out with a search radius of $1$ and increase it until we find a way of accommodating another example
   \FOR{$R = 1,2,3,4,...$}
-  \FOR {$c\in C$}
-  \STATE Set synthesisResult$ = \text{solveIncrementalChange}(T\cup\{c\},\{r_j\},R)$
+%  \FOR {$c\in C$}
+  \STATE Set synthesisResult$ = \text{solveIncrementalChange}(T,\{r_j\},R)$
   \IF{synthesisResult$\not= \bot$}
   \STATE Set $\{r_j\}_{j = 1}^{B_R}, \{p_i\}, \{s_i\} = $synthesisResult
-  \STATE Add $c$ to the set of training examples, $T$
-  \STATE \textbf{break out of loop over }$R$ // Successfully updated both our solution and added another example to the training set
+  \STATE \textbf{break out of loop over }$R$ // Successfully updated both our solution and the training set
 \end{algorithmic}
 \vspace{1cm} 
 
@@ -686,6 +687,26 @@ Variations of \textbf{incrementalCEGIS} that I have tried:
 \item[] Giving sketch more problems to solve but making each problem smaller. Here what I do is have an outer loop that iterates over all of the different ways you could edit an existing set of rules, and then invoke the solver for each of these. So for example I invoke the solver telling it to change only the first rule,
   then I invoke it telling it to change only the second rule, etc, finally telling it to keep all the rules the same but add a new rule.
 \end{itemize}
+
+\subsection{Search heuristics}
+
+\subsubsection{Guessing underlying forms}
+
+\textbf{incrementalCEGIS} is a generic way of learning large programs that explain large data sets,
+and does not encode any domain specific knowledge about phonology.
+Empirically, the search problem is \emph{much} easier if you
+either know what the underlying forms are or have some constraints on what the underlying forms are.
+If I introspect on my own reasoning process while solving these problems,
+I usually guess at most a few plausible underlying forms for each lexeme.
+I encoded a simple heuristic for guessing parts of underlying representations:
+given prefixes/suffixes $\left\{p_i \right\}$ \& $\left\{s_i \right\}$
+and observed inflections for a single lexeme $\left\{x_i \right\}$,
+this heuristic guesses that the underlying form begins with the longest shared prefix
+of the surface forms with the prefixes chopped off,
+and that it ends with the longest shared suffix of the surface forms with the suffixes chopped off.
+For example, if we have surface forms $(\text{test},\text{testing},\text{tests})$,
+and have prefixes $(\text{t},\text{t},\text{t})$ and suffixes $(\text{t},\text{ting},\text{ts})$,
+this heuristic constrains the underlying form to start with $\text{es}$ and end with $\text{es}$.
 
 
 
