@@ -1,0 +1,325 @@
+% Use only LaTeX2e, calling the article.cls class and 12-point type.
+
+\documentclass[12pt]{article}
+
+% Users of the {thebibliography} environment or BibTeX should use the
+% scicite.sty package, downloadable from *Science* at
+% http://www.sciencemag.org/authors/preparing-manuscripts-using-latex 
+% This package should properly format in-text
+% reference calls and reference-list numbers.
+
+\usepackage{scicite}
+
+\usepackage{times}
+
+% The preamble here sets up a lot of new/revised commands and
+% environments.  It's annoying, but please do *not* try to strip these
+% out into a separate .sty file (which could lead to the loss of some
+% information when we convert the file to other formats).  Instead, keep
+% them in the preamble of your main LaTeX source file.
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tipa}
+\usepackage{graphicx}
+\usepackage{booktabs}
+% The following parameters seem to provide a reasonable page setup.
+
+\topmargin 0.0cm
+\oddsidemargin 0.2cm
+\textwidth 16cm 
+\textheight 21cm
+\footskip 1.0cm
+
+\usepackage{phonrule}
+
+%The next command sets up an environment for the abstract to your paper.
+
+\newenvironment{sciabstract}{%
+\begin{quote} \bf}
+{\end{quote}}
+
+
+
+% Include your paper's title here
+
+\title{Synthesizing Theories of Human Language with Bayesian Program Induction} 
+
+
+% Place the author information here.  Please hand-code the contact
+% information and notecalls; do *not* use \footnote commands.  Let the
+% author contact information appear immediately below the author names
+% as shown.  We would also prefer that you don't change the type-size
+% settings shown here.
+
+\author
+{John Smith,$^{1\ast}$ Jane Doe,$^{1}$ Joe Scientist$^{2}$\\
+\\
+\normalsize{$^{1}$Department of Chemistry, University of Wherever,}\\
+\normalsize{An Unknown Address, Wherever, ST 00000, USA}\\
+\normalsize{$^{2}$Another Unknown Address, Palookaville, ST 99999, USA}\\
+\\
+\normalsize{$^\ast$To whom correspondence should be addressed; E-mail:  jsmith@wherever.edu.}
+}
+
+% Include the date command, but leave its argument blank.
+
+\date{}
+
+
+
+%%%%%%%%%%%%%%%%% END OF PREAMBLE %%%%%%%%%%%%%%%%
+
+
+
+\begin{document} 
+
+% Double-space the manuscript.
+
+\baselineskip24pt
+
+% Make the title.
+
+\maketitle 
+
+
+
+% Place your abstract within the special {sciabstract} environment.
+
+\begin{sciabstract}
+\end{sciabstract}
+
+
+
+% In setting up this template for *Science* papers, we've used both
+% the \section* command and the \paragraph* command for topical
+% divisions.  Which you use will of course depend on the type of paper
+% you're writing.  Review Articles tend to have displayed headings, for
+% which \section* is more appropriate; Research Articles, when they have
+% formal topical divisions at all, tend to signal them with bold text
+% that runs into the paragraph, for which \paragraph* is the right
+% choice.  Either way, use the asterisk (*) modifier, as shown, to
+% suppress numbering.
+
+\section*{Introduction}
+
+An age-old aspiration within artificial intelligence research is to build a machine that automates the scientific process~\cite{paul1990autonomous,langley1987scientific}, either by designing experiments~\cite{sparkes2010towards} or
+synthesizing theories and models~\cite{schmidt2009distilling}.
+However, gaining traction on the problem of theory induction requires
+a spectrum of tractable theory synthesis problems:
+while early work attempted to recapitulate
+classic discoveries like Kepler's laws~\cite{BACON},
+these results proved brittle and difficult to generalize.
+Despite these early works,
+theory induction has never attained the same level of success as
+machine vision or natural language processing.
+How can the artificial intelligence community get theory induction off the ground?
+This is an especially difficult question,
+because the current mainstream in machine intelligence focuses on
+learning to solve a qualitatively different class of problems (e.g., prediction tasks like classification and regression),
+whereas theory induction requires
+synthesizing human-understandable causal models of real-world phenomena~\cite{pearl2009causality},
+so that human scientists can understand and learn from the AI's outputs.
+
+
+We propose theory induction research start with theories of human
+language, and scope out a collection of problems and techniques for a
+key module of natural language: \emph{morphophonology}, the
+relationship between pronunciations of words and their meaning.
+Acquiring the morphophonology of a language involve solving a basic
+problem that confronts both linguists and children: given a collection
+of utterances, together with aspects of their meaning, what is the
+causal relationship between form and meaning?  Morphophonology, and
+natural language more broadly, presents a tractable challenge to
+theory induction, for three reasons.  First, every natural language is
+a different theory induction problem, so there is a wide spectrum of
+induction tasks to evaluate on.  Second, linguistics as a field
+traditionally formalizes theories in computational terms, and so there
+is a pre-existing body of representations and algorithms for the AI
+researcher to draw upon.  Third, we know that acquiring theories of
+language (e.g., grammars) is tractable, because children 
+acquire language, and field linguists can be trained to build theories of grammar.
+
+Our contribution to theory induction is
+an algorithm for synthesizing
+theories of natural language morphophonology.
+Like the linguist,
+the algorithm starts with
+a collection of utterances 
+annotated with their meanings,
+and then constructs a
+causal, interpretable model explaining how
+those meanings gave rise to the utterances.
+An important aspect of a scientific theory is
+that it makes predictions; here,
+the theory predicts pronunciations of unobserved words conditioned on their meaning.
+We evaluate our algorithm on \# data sets spanning \# languages,
+automatically finding theories that can model a wide swath of a core component of human natural language.
+
+
+
+\begin{table}\centering
+\begin{tabular}{lcl}
+  \toprule
+  Example data&Morphophonology\\\midrule
+\begin{tabular}{ll}
+1&\textipa{\|x{j}ig}\\
+4&\textipa{\|x{s}i}\\
+5&\textipa{Na}\\
+9&\textipa{gu}\\
+10&\textipa{\|x{j}u}\\
+11 ($= 10 + 1$) & \textipa{\|x{j}ug\|x{j}ig}\\
+14 ($= 10 + 4$) & \textipa{\|x{j}ub\|x{s}i}\\
+15 ($= 10 + 5$) & \textipa{\|x{j}uNa}\\
+19 ($= 10 + 9$) & \textipa{\|x{j}urgu}\\
+40 ($= 4 + 10$) & \textipa{\|x{s}ib\|x{j}u}\\
+50 ($= 5 + 10$) & \textipa{Nab\|x{j}u}\\
+90 ($= 9 + 10$) & \textipa{gub\|x{j}u}
+\end{tabular}
+&
+\begin{tabular}{l}
+  \emph{Consonant cluster reduction:}\\
+  \phonb{C}{$\varnothing$}{\#}{C}\\
+  (\emph{Upon encountering a consonant (C),}\\
+  \emph{ delete it ($\to\varnothing$) at the beginning of}\\
+  \emph{ a word (\#\_) if followed by another}\\
+  \emph{ consonant (\_C)})
+  \end{tabular}
+
+  \\
+  \bottomrule  \end{tabular}
+\caption{Tibetan count system.}
+\label{Tibetan}
+\end{table}
+
+\begin{figure}
+  \includegraphics[width = \textwidth]{naturalLanguageGenerativeModel.pdf}
+  \caption{Theory learner induces grammars (blue) for a range of languages, given observed form/meaning pairs (pink). Grammars are expressed as programs drawn from a universal grammar, or programming language. }\label{generativeModel}
+  \end{figure}
+
+
+
+
+
+
+
+\section*{Discovering Theories by Synthesizing Programs}
+
+We frame our approach as Bayesian Program Learning (BPL: see~\cite{lake2015human}),
+where the agent explains a
+set of utterance/meaning pairs $\left\{(u_n,m_n) \right\}_{n = 1}^N$
+by inferring a theory $T$, which we model as a program.
+Formalizing grammars (theories) as generative programs has a long history in linguistics~\cite{chomsky1968sound}.
+Written as a probabilistic inference problem, the agent seeks the $T$ maximizing $\left[\prod_{n = 1}^N P(u_n,m_n | T) \right] P(T|UG)$,
+where $UG$ is a ``universal grammar'' (\textbf{TIM}: what should I cite here?)
+constraining the space of allowed theories and imparting an inductive bias over the space of grammars.
+In this BPL setting we model $UG$ as a prior distribution over theories (programs).
+To model the space of programs
+use Context-Sensitive Rewrites,
+a Turing-complete program representation,
+but restrict the rewrites
+in such a way as to make them equivalent to finite state transducers --- this insight comes from the computational linguistics literature~\cite{beesley2003finite}.
+For morphophonology,
+the relationship between meaning $m_n$ and utterance $u_n$
+involves a latent \emph{lexicon},
+which is a mapping between lexemes and the pronunciation of their stem.
+For children, linguists, and our model, the lexicon
+must also be inferred (Fig.~\ref{generativeModel}).
+
+
+
+Although this framing captures the problem a BPL theory inductor needs to solve,
+it offers no guidance on how to solve that problem:
+the space of all programs (theories) is infinitely large and
+sharply discontinuous, lacking the local smoothness that
+enables local optimization algorithms (e.g., gradient descent; MCMC)
+to succeed.
+We adopt a strategy currently unconventional to the
+AI community: constraint--based program synthesis,
+where the optimization problem is translated
+into a combinatorial constraint satisfaction 
+problem and solved using
+a SMT solver~\cite{solar2006combinatorial}.
+
+
+
+
+
+\section*{Discussion}
+
+
+
+
+
+
+
+
+
+
+\bibliography{main}
+
+\bibliographystyle{Science}
+
+
+
+
+
+%% \section*{Acknowledgments}
+%% Include acknowledgments of funding, any patents pending, where raw data for the paper are deposited, etc.
+
+%% %Here you should list the contents of your Supplementary Materials -- below is an example. 
+%% %You should include a list of Supplementary figures, Tables, and any references that appear only in the SM. 
+%% %Note that the reference numbering continues from the main text to the SM.
+%% % In the example below, Refs. 4-10 were cited only in the SM.     
+%% \section*{Supplementary materials}
+%% Materials and Methods\\
+%% Supplementary Text\\
+%% Figs. S1 to S3\\
+%% Tables S1 to S4\\
+%% References \textit{(4-10)}
+
+
+%% % For your review copy (i.e., the file you initially send in for
+%% % evaluation), you can use the {figure} environment and the
+%% % \includegraphics command to stream your figures into the text, placing
+%% % all figures at the end.  For the final, revised manuscript for
+%% % acceptance and production, however, PostScript or other graphics
+%% % should not be streamed into your compliled file.  Instead, set
+%% % captions as simple paragraphs (with a \noindent tag), setting them
+%% % off from the rest of the text with a \clearpage as shown  below, and
+%% % submit figures as separate files according to the Art Department's
+%% % instructions.
+
+
+%% \clearpage
+
+%% \noindent {\bf Fig. 1.} Please do not use figure environments to set
+%% up your figures in the final (post-peer-review) draft, do not include graphics in your
+%% source code, and do not cite figures in the text using \LaTeX\
+%% \verb+\ref+ commands.  Instead, simply refer to the figure numbers in
+%% the text per {\it Science\/} style, and include the list of captions at
+%% the end of the document, coded as ordinary paragraphs as shown in the
+%% \texttt{scifile.tex} template file.  Your actual figure files should
+%% be submitted separately.
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

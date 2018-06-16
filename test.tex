@@ -1,6 +1,7 @@
 
 \documentclass{article}
 \usepackage[margin = 0.1cm]{geometry}
+\usepackage{phonrule}
 \usepackage{tipa}
 \usepackage{booktabs}
 \usepackage{amssymb}
@@ -1082,10 +1083,10 @@ $\varnothing$ $+$stem$+$ $\varnothing$ & $\varnothing$ $+$stem$+$ \textipa{a} & 
  --  &  --  &  --  &  --  & \textipa{vez\'{e}m} & \textipa{v\'{e}zao} & \textipa{vezl\'{a}} & \textipa{vezl\'{o}} &  -- \\
 \bottomrule\end{longtable}
 \begin{tabular}{l}\emph{Rules: }\\
-\verb|[+vowel]| $\to$ \verb|[+highTone]| / \verb|[+highTone]| \verb|[ ]|* \verb|_| \\$\varnothing$ $\to$ \textipa{a} / \verb|[-vowel]| \verb|_| \verb|[-vowel]| \#\\\verb|[+vowel]| $\to$ \verb|[-highTone]| /  \verb|_| \verb|[ ]|* \verb|[+highTone]|\\\textipa{l} $\to$ \textipa{o} /  \verb|_| \#\\\verb|[-sonorant]| $\to$ \verb|[-voice]| /  \verb|_| \verb|[-voice]|
+\phonl{V}{[ +highTone ]}{[ +highTone ] [ ]\textsubscript{*}}\\\phonb{$\varnothing$}{\textipa{a}}{C}{C \#}\\\phonr{V}{[ -highTone ]}{[ ]\textsubscript{*} [ +highTone ]}\\\phonr{\textipa{l}}{\textipa{o}}{\#}\\\phonr{[ -sonorant ]}{[ -voice ]}{[ -voice ]}
 \end{tabular}
 \begin{tabular}{l}\emph{Textbook solution rules: }\\
-\verb|[+vowel]| $\to$ \verb|[+highTone]| / \verb|[+highTone]| \verb|[-vowel]|* \verb|_| \\\verb|[+vowel]| $\to$ \verb|[-highTone]| /  \verb|_| \verb|[-vowel]|* \verb|[+highTone]|\\$\varnothing$ $\to$ \textipa{a} / \verb|[-vowel]| \verb|_| \verb|[-vowel]| \#\\\textipa{l} $\to$ \textipa{o} /  \verb|_| \#\\\verb|[-sonorant]| $\to$ \verb|[-voice]| /  \verb|_| \verb|[-voice]|
+\phonl{V}{[ +highTone ]}{[ +highTone ] C\textsubscript{*}}\\\phonr{V}{[ -highTone ]}{C\textsubscript{*} [ +highTone ]}\\\phonb{$\varnothing$}{\textipa{a}}{C}{C \#}\\\phonr{\textipa{l}}{\textipa{o}}{\#}\\\phonr{[ -sonorant ]}{[ -voice ]}{[ -voice ]}
 \end{tabular}
 
 \pagebreak
@@ -1125,10 +1126,10 @@ $\varnothing$ $+$stem$+$ $\varnothing$ & $\varnothing$ $+$stem$+$ \textipa{am} &
  --  &  --  &  --  &  --  &  --  & \textipa{more} & \textipa{mor\super ja} & \textipa{mor\super ju} & \textipa{mor\super ji} & \textipa{mir\super j} &  -- \\
 \bottomrule\end{longtable}
 \begin{tabular}{l}\emph{Rules: }\\
-\verb|[ ]| $\to$ $-2$ / \verb|[ ]| \verb|[ ]| \verb|_| \verb|[+sibilant]| \#\\\verb|[ ]| $\to$ \textipa{e} / \verb|[+palletized]| \verb|_| \verb|[+voice]| \verb|[+vowel]|\\\verb|[-glide]| $\to$ \verb|[-palletized]| /  \verb|_| \verb|[-back]|\\\textipa{w} $\to$ \textipa{v} / \verb|[+vowel]| \verb|_| \verb|[+vowel]|\\\verb|[ ]| $\to$ \verb|[+palletized]| /  \verb|_| \textipa{i}\\\textipa{o} $\to$ \textipa{i} /  \verb|_| \verb|[-vowel]|* \verb|[-vowel]| \#\\\textipa{l} $\to$ \textipa{w} /  \verb|_| \#
+\phonb{[ ]}{[ ]\textsubscript{i}}{[ ]\textsubscript{i} [ ]}{[ +sibilant ] \#}\\\phonb{[ ]}{\textipa{e}}{[ +palletized ]}{[ +voice ] V}\\\phonr{[ -glide ]}{[ -palletized ]}{[ -back ]}\\\phonb{\textipa{w}}{\textipa{v}}{V}{V}\\\phonr{[ ]}{[ +palletized ]}{\textipa{i}}\\\phonr{\textipa{o}}{\textipa{i}}{C\textsubscript{*} C \#}\\\phonr{\textipa{l}}{\textipa{w}}{\#}
 \end{tabular}
 \begin{tabular}{l}\emph{Textbook solution rules: }\\
-\verb|[-vowel]| $\to$ \verb|[+palletized]| /  \verb|_| \textipa{i}\\\textipa{o} $\to$ \textipa{e} / \verb|[+palletized]| $+$ \verb|_| \\\verb|[+vowel -low -high]| $\to$ \textipa{i} /  \verb|_| \verb|[-vowel]|* \verb|[-vowel]| \#\\\verb|[-glide -vowel]| $\to$ \verb|[-palletized]| /  \verb|_| \textipa{e}\\\textipa{l} $\to$ \textipa{w} /  \verb|_| \#\\\textipa{v} $\to$ \textipa{w} /  \verb|_| \#
+\phonr{C}{[ +palletized ]}{\textipa{i}}\\\phonl{\textipa{o}}{\textipa{e}}{[ +palletized ] $+$}\\\phonr{[ +vowel -low -high ]}{\textipa{i}}{C\textsubscript{*} C \#}\\\phonr{[ -glide -vowel ]}{[ -palletized ]}{\textipa{e}}\\\phonr{\textipa{l}}{\textipa{w}}{\#}\\\phonr{\textipa{v}}{\textipa{w}}{\#}
 \end{tabular}
 
 \pagebreak
@@ -1188,11 +1189,10 @@ $\varnothing$ $+$stem$+$ \textipa{s} & $\varnothing$ $+$stem$+$ \textipa{is} & $
 \textipa{pulvis} & \textipa{pulveris} &  --  &  -- \\
 \bottomrule\end{longtable}
 \begin{tabular}{l}\emph{Rules: }\\
-\verb|[-sonorant]| $\to$ \verb|[-voice]| /  \verb|_| \verb|[-voice]|\\\textipa{e} $\to$ $2$ /  \verb|_| \verb|[-liquid]| \verb|[+vowel]|\\\verb|[-vowel]| $\to$ $\varnothing$ / \verb|[+coronal]| \verb|_| \#\\\verb|[-sonorant]| $\to$ \textipa{s} /  \verb|_| \#\\$\varnothing$ $\to$ \textipa{e} / \verb|[-sonorant]| \verb|_| \verb|[+voice]| \#\\$\varnothing$ $\to$ $2$ / \verb|[+sibilant]| \verb|_| \verb|[+vowel]| \verb|[-voice]|\\$\varnothing$ $\to$ $1$ / \# \verb|[-coronal]| \verb|[-high]| \verb|_| \verb|[+voice]| \textipa{i}
+\phonr{[ -sonorant ]}{[ -voice ]}{[ -voice ]}\\\phonr{\textipa{e}}{V\textsubscript{i}}{[ -liquid ] V\textsubscript{i}}\\\phonb{C}{$\varnothing$}{[ +coronal ]}{\#}\\\phonr{[ -sonorant ]}{\textipa{s}}{\#}\\\phonb{$\varnothing$}{\textipa{e}}{[ -sonorant ]}{[ +voice ] \#}\\\phonb{$\varnothing$}{[ -voice ]\textsubscript{i}}{[ +sibilant ]}{V [ -voice ]\textsubscript{i}}\\\phonb{$\varnothing$}{[ +voice ]\textsubscript{i}}{\# [ -coronal ] [ -high ]}{[ +voice ]\textsubscript{i} \textipa{i}}
 \end{tabular}
 \begin{tabular}{l}\emph{Textbook solution rules: }\\
-\verb|[-sonorant]| $\to$ \verb|[-voice]| /  \verb|_| \verb|[-voice]|\\\textipa{s} $\to$ $\varnothing$ / \verb|[+coronal +sonorant]| \verb|_| \\\verb|[+coronal -sonorant]| $\to$ $\varnothing$ /  \verb|_| \textipa{s}\\\textipa{e} $\to$ \textipa{i} /  \verb|_| \verb|[-vowel]| \verb|[+vowel]|\\$\varnothing$ $\to$ \textipa{e} / \verb|[-vowel]| \verb|_| \verb|[+coronal +sonorant]| \#\\\textipa{s} $\to$ \textipa{r} / \verb|[+vowel]| \verb|_| \verb|[+vowel]|\\\verb|[+vowel -back]| $\to$ \verb|[-high]| /  \verb|_| \textipa{r}\\$1$ $\to$ $\varnothing$ /  \verb|_| \verb|[-vowel]| \#
+\phonr{[ -sonorant ]}{[ -voice ]}{[ -voice ]}\\\phonl{\textipa{s}}{$\varnothing$}{[ +coronal +sonorant ]}\\\phonr{[ +coronal -sonorant ]}{$\varnothing$}{\textipa{s}}\\\phonr{\textipa{e}}{\textipa{i}}{C V}\\\phonb{$\varnothing$}{\textipa{e}}{C}{[ +coronal +sonorant ] \#}\\\phonb{\textipa{s}}{\textipa{r}}{V}{V}\\\phonr{[ +vowel -back ]}{[ -high ]}{\textipa{r}}\\\phonr{$1$}{$\varnothing$}{C \#}
 \end{tabular}
-
 
 \end{document}

@@ -690,6 +690,27 @@ Variations of \textbf{incrementalCEGIS} that I have tried:
 
 \subsection{Search heuristics}
 
+\subsubsection{Bounding the size of the rules}
+Sketch only works with finite program spaces, because it unrolls anything that loops or is recursive up to some depth bound. A necessary consequence of this is that we cannot learn rules with an arbitrary number of feature matrices. I bound the number of feature matrices to be 2 on each side.
+
+\subsubsection{``Freezing'' rules and underlying forms}
+\textbf{incrementalCEGIS} constructs a sequence of models that explain
+more and more of the data.  If in this sequence we see that a certain
+rule always occurs, or that a certain surface form always has a
+certain underlying representation, then we might guess that rule or
+underlying representation is really part of the correct solution and
+that we shouldn't go back and try to revise that rule or underlying
+form.  Concretely what this means is that I keep track of how many
+times a rule or underlying form is found by \textbf{incrementalCEGIS};
+once it has occurred at least 5 times I ``freeze'' the rule or
+underlying form and do not allow it to change in the future.
+
+For example, after a few rounds of \textbf{incrementalCEGIS}
+we might find that we always need to devoice word final segments.
+If this is the case then we will stop trying to change the rule that devoices
+word final segments.
+
+
 \subsubsection{Guessing underlying forms}
 
 \textbf{incrementalCEGIS} is a generic way of learning large programs that explain large data sets,
@@ -993,8 +1014,17 @@ These problems are solved:
 \item Polish: vowel alternations interacting with devoicing of word final obstruent in singular/plural
 \item Ancient Greek: voicing assimilation, deaspiration, deletion rule. Order matters.
 \item Serbo-Croatian: predictable stress, devoicing, neutralizing, epenthesis
+\item Catalan: Spritization, devoicing, several different kinds of cluster reduction
+\item Korean: place assimilation and nasalization
+\item Latin: assimilation, devoicing, different kinds of cluster reduction, vowel harmony
 \end{itemize}
-17 textbook problems are not solved. 2 of these need a tier-based representation. A couple more of these are due to limitations in the program learner's representation of rules. The rest are because they involve scaling to more than 3 rules, which is about the practical limit for exact search with these methods.
+These problems it solves most of:
+\begin{itemize}
+\item Somali:  Spritization, copying rules
+\end{itemize}
+12 textbook problems are not solved, along with two other problems that involve tier--based representations.
+3 of the above problems are not actually exercises but are instead examples that I included because they are neat problems. This means that we solve $\frac{28}{40} = 70\%$ of the textbook currently,
+using a slightly liberal interpretation of what it means to ``solve a problem'' (e.g., our solution for Latin is slightly different from the textbook answer, but to me it looks fine and is at least as compressive).
 \pagebreak
 
 
