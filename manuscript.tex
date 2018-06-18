@@ -18,7 +18,9 @@
 % information when we convert the file to other formats).  Instead, keep
 % them in the preamble of your main LaTeX source file.
 
+\usepackage{verbatim}
 \usepackage{amsmath}
+\usepackage{dsfont}
 \usepackage{amssymb}
 \usepackage{tipa}
 \usepackage{graphicx}
@@ -30,6 +32,8 @@
 \textwidth 16cm 
 \textheight 21cm
 \footskip 1.0cm
+
+\newcommand{\indicator}{\mathds{1}} %{{\rm I\kern-.3em E}}
 
 \usepackage{phonrule}
 
@@ -103,33 +107,35 @@
 
 \section*{Introduction}
 
-An age-old aspiration within artificial intelligence research is to build a machine that automates the scientific process~\cite{paul1990autonomous,langley1987scientific}, either by designing experiments~\cite{sparkes2010towards} or
-synthesizing theories and models~\cite{schmidt2009distilling}.
-However, gaining traction on the problem of theory induction requires
-a spectrum of tractable theory synthesis problems:
-while early work attempted to recapitulate
-classic discoveries like Kepler's laws~\cite{BACON},
-these results proved brittle and difficult to generalize.
-Despite these early works,
-theory induction has never attained the same level of success as
-machine vision or natural language processing.
-How can the artificial intelligence community get theory induction off the ground?
-This is an especially difficult question,
-because the current mainstream in machine intelligence focuses on
-learning to solve a qualitatively different class of problems (e.g., prediction tasks like classification and regression),
-whereas theory induction requires
-synthesizing human-understandable causal models of real-world phenomena~\cite{pearl2009causality},
-so that human scientists can understand and learn from the AI's outputs.
+An age-old aspiration within artificial intelligence research is to
+build a machine that helps automate the scientific process by
+synthesizing theories or
+models~\cite{paul1990autonomous,langley1987scientific,schmidt2009distilling}.
+This aspiration remains largely unrealized: despite a few
+small-scale successes on toy problems~\cite{Langley1981BACON5TD},
+practicing scientists do not use machines to generate theories.
+In contrast, AI has made great strides
+on problems like machine vision and natural language processing.  How
+can the artificial intelligence community get theory induction off the
+ground?  This is an especially difficult question, because the current
+mainstream in machine intelligence focuses on qualitatively different
+classes of problems (e.g., prediction tasks like classification and
+regression), whereas theory induction requires synthesizing
+human-understandable causal models of real-world
+phenomena~\cite{pearl2009causality}, so that human scientists can
+understand and learn from the AI's outputs.
 
 
 We propose theory induction research start with theories of human
-language, and scope out a collection of problems and techniques for a
+language, and introduce a model of theory induction for a
 key module of natural language: \emph{morphophonology}, the
-relationship between pronunciations of words and their meaning.
+relationship between word pronunciation and meaning.
 Acquiring the morphophonology of a language involve solving a basic
-problem that confronts both linguists and children: given a collection
+problem confronting both linguists and children: given a collection
 of utterances, together with aspects of their meaning, what is the
-causal relationship between form and meaning?  Morphophonology, and
+causal relationship between form and meaning?
+\begin{comment}
+Morphophonology, and
 natural language more broadly, presents a tractable challenge to
 theory induction, for three reasons.  First, every natural language is
 a different theory induction problem, so there is a wide spectrum of
@@ -139,29 +145,152 @@ is a pre-existing body of representations and algorithms for the AI
 researcher to draw upon.  Third, we know that acquiring theories of
 language (e.g., grammars) is tractable, because children 
 acquire language, and field linguists can be trained to build theories of grammar.
+\end{comment}
 
-Our contribution to theory induction is
-an algorithm for synthesizing
-theories of natural language morphophonology.
-Like the linguist,
-the algorithm starts with
-a collection of utterances 
-annotated with their meanings,
-and then constructs a
-causal, interpretable model explaining how
-those meanings gave rise to the utterances.
-An important aspect of a scientific theory is
-that it makes predictions; here,
-the theory predicts pronunciations of unobserved words conditioned on their meaning.
-We evaluate our algorithm on \# data sets spanning \# languages,
-automatically finding theories that can model a wide swath of a core component of human natural language.
+Our contribution is a model for synthesizing theories of natural
+language morphophonology.  Like linguists, the model starts with a
+collection of utterances paired with meanings, and then constructs a
+causal, interpretable model explaining how those meanings gave rise to
+the utterances, roughly mirroring the process by which theorists
+construct theories starting from experimental data.  In addition to
+building theories, scientists distill those theories into higher-level
+kinds of knowledge spanning multiple theories (e.g., energy
+conservation and Lorentz invariance in physics; XXX in chemistry;
+universal grammar in linguistics).  We argue that this higher-level
+abstract knowledge is a crucial part of theory induction, imparting
+prior knowledge and constraints on what would otherwise be an
+ill-posed inductive reasoning problem.  Our model also acquires this
+higher-level knowledge by jointly inferring theories for multiple
+languages, and then shifting its inductive bias over theories to more
+closely match the attested distribution of languages.  We evaluate our
+algorithm on \# data sets spanning \# languages, automatically finding
+theories that can model a wide swath of a core component of human
+language.
 
 
 
-\begin{table}\centering
-\begin{tabular}{lcl}
-  \toprule
-  Example data&Morphophonology\\\midrule
+
+
+
+\begin{figure}
+  \includegraphics[width = \textwidth]{naturalLanguageGenerativeModel-crop.pdf}
+  \caption{Agent induces theories (teal) for a range of languages, given observed form/meaning pairs (orange). Grammars are expressed as programs drawn from a universal grammar, or programming language (magenta). }\label{generativeModel}
+  \end{figure}
+
+
+
+
+
+
+
+\section*{Discovering Theories by Synthesizing Programs} 
+
+We frame our approach as Bayesian Program Learning (BPL:
+see~\cite{lake2015human}), where the model explains a set of
+utterance/meaning pairs $\left\{(u_n,m_n) \right\}_{n = 1}^N$ by
+inferring a theory $T$, which we model as a program.  Formalizing
+grammars (theories) as generative programs has a long history in
+linguistics~\cite{chomsky1968sound},
+for an intuitive reason: being procedural,
+programs can capture the causal nature of
+both grammars and theories.
+Written as a probabilistic
+inference problem, the model seeks the theory $T$ maximizing
+$P(\{u_n,m_n\}_{n = 1}^N | T)P(T|UG)$, where $UG$ is a ``universal
+grammar'' encapsulating  higher-level abstract knowledge across
+different languages.  In this BPL setting we model $UG$ as a prior
+distribution over theories (programs), and represent programs as
+Context-Sensitive Rewrites, a Turing-complete program representation,
+but restrict the rewrites in such a way as to make them equivalent to
+finite state transducers --- this approach comes from the computational
+linguistics literature~\cite{beesley2003finite}.
+
+A language's morphophonology can generate infinitely many
+utterances,
+depending on what words are in the language,
+just as theories in other sciences
+can generate an infinite set of
+possible observations --- in Newtonian mechanics,
+the theory prescribes
+how bodies will interact,
+but does not prescribe
+the number of bodies or their masses.
+Thus, for a theory to explain a set of observations,
+it must introduce additional latent (unobserved)
+variables on a dataset-by-dataset basis.
+For the theories of language considered here,
+this latent variable is the \emph{lexicon},
+which is a mapping between
+the meaning of a stem and its pronunciation.
+Taking into account the latent lexicon,
+we refine the theory-induction objective into
+finding the theory $T$ and lexicon $L$ maximizing
+$\left[\prod_{n = 1}^N \indicator[T\text{ and }L\text{ predict }u_n\text{ for }m_n] \right]P(L)P(T|UG)$.
+Fig.~\ref{generativeModel} illustrates this set up for three different languages.
+
+Although this framing captures the problem a BPL theory inductor needs to solve,
+it offers no guidance on how to solve that problem:
+the space of all programs (theories) is infinitely large and
+sharply discontinuous, lacking the local smoothness that
+enables local optimization algorithms (e.g., gradient descent; MCMC)
+to succeed.
+We adopt a strategy currently unconventional to the
+AI community: constraint--based program synthesis,
+where the optimization problem is translated
+into a combinatorial constraint satisfaction 
+problem and solved using
+a SMT solver~\cite{solar2006combinatorial}.
+To scale these solvers to
+large and complex theories 
+we wrap the solver in
+an outer loop that incrementally
+introduces new (utterance, meaning) pairs,
+incrementally modifying the theory to explain
+new data points (Supplementary materials).
+
+We apply our model to textbook morphophonology problems taken from~\cite{9780511808869}.
+Each textbook problem requires synthesizing a
+causal theory of a subset of a language.
+Fig.~\ref{languageComparison}
+compares model outputs against 
+ground-truth textbook solutions.
+These problem span a range of difficulties
+and cover a diverse set of natural language phenomena:
+systems for assigning tone (e.g., in Kerewe,
+`to count' is kubala, but `to count it' is \textipa{kuk\'ib\'ala}, where accents mark high tones),
+for ``harmonizing'' vowels (found across many languages, e.g. Kikuria
+has s\underline{ii}ka meaning `close' but s\underline{ee}kera meaning `close for';
+Latin has [ad\underline{e}ps] meaning `fat' (nominative)' but [ad\underline{i}pis] for the genitive `fat'),
+and many other linguistic phenomena like
+assimilation, epenthesis, and degemination (Fig.~\ref{exampleGrammars} and Supplementary materials).
+
+Our theory induction model covers a wider range of languages and
+phenomena than prior grammar induction algorithms from the
+computational linguistics literature: prior approaches either recover
+interpretable causal models
+(e.g.,~\cite{Albright03rulesvs,gildea1996learning,rasin2015learning})
+but do not scale to a wide range of challenging and realistic data
+sets, or abandon theory induction and instead learn opaque
+probabilistic models~\cite{cotterell-peng-eisner-2015} that may
+nonetheless predict the data well but which do not help human
+scientists generate theories.  Our improvement here stems from two
+modeling choices: First, we use a generic computational substrate ---
+context-sensitive rewrites --- giving the expressive power needed to
+explain diverse linguist phenomena.  Second, we leverage solver-based
+program synthesis techniques, borrowing decades of
+research in the programming languages community that have honed these
+tools to the point that we can scale them to
+realistic data sets using rich program representations.
+
+%2
+
+
+\begin{figure}
+  \begin{tabular}{lcc}    
+    \toprule
+    &  Tibetan Count System&Catalan Nouns\\\midrule
+    \rotatebox[origin=c]{90}{Subset of Data}&
+    
 \begin{tabular}{ll}
 1&\textipa{\|x{j}ig}\\
 4&\textipa{\|x{s}i}\\
@@ -177,75 +306,120 @@ automatically finding theories that can model a wide swath of a core component o
 90 ($= 9 + 10$) & \textipa{gub\|x{j}u}
 \end{tabular}
 &
+\begin{tabular}{lllll}
+  \textipa{@kelj}$\sim$\textipa{@kelj@} &&\textipa{mal}$\sim$\textipa{mal@} \\
+\textipa{siBil}$\sim$\textipa{siBil@} &&\textipa{@skerp}$\sim$\textipa{@skerp@} \\
+\textipa{Sop}$\sim$\textipa{Sop@} &&\textipa{sEk}$\sim$\textipa{sEk@} \\
+\textipa{@spEs}$\sim$\textipa{@spEs@} &&\textipa{gros}$\sim$\textipa{gros@} \\
+\textipa{baS}$\sim$\textipa{baS@} &&\textipa{koS}$\sim$\textipa{koS@} \\
+\textipa{tot}$\sim$\textipa{tot@} &&\textipa{brut}$\sim$\textipa{brut@} \\
+\textipa{pOk}$\sim$\textipa{pOk@} &&\textipa{pr@sis}$\sim$\textipa{pr@siz@} \\
+\textipa{fr@nses}$\sim$\textipa{fr@nsez@} &&\textipa{gris}$\sim$\textipa{griz@} \\
+\textipa{k@zat}$\sim$\textipa{k@zaD@} &&\textipa{bwit}$\sim$\textipa{bwiD@} \\
+\textipa{rOt\super S}$\sim$\textipa{rOZ@} &&\textipa{bot\super S}$\sim$\textipa{boZ@} \\
+\textipa{orp}$\sim$\textipa{orB@} &&\textipa{ljark}$\sim$\textipa{ljarG@} \\
+\textipa{sek}$\sim$\textipa{seG@} &&\textipa{f@Suk}$\sim$\textipa{f@SuG@} \\
+\textipa{grok}$\sim$\textipa{groG@} &&\textipa{puruk}$\sim$\textipa{puruG@} \\
+\textipa{kandit}$\sim$\textipa{kandiD@} &&\textipa{frEt}$\sim$\textipa{frED@} \\
+\textipa{s@Gu}$\sim$\textipa{s@Gur@} &&\textipa{du}$\sim$\textipa{dur@} \\
+\textipa{s@G@Do}$\sim$\textipa{s@G@Dor@} &&\textipa{kla}$\sim$\textipa{klar@} \\
+\textipa{nu}$\sim$\textipa{nu@} &&\textipa{kru}$\sim$\textipa{kru@} \\
+\textipa{flO\~nd\super Zu}$\sim$\textipa{flO\~nd\super Z@} &&\textipa{dropu}$\sim$\textipa{drop@} \\
+\textipa{@gzakt@}$\sim$\textipa{@gzakt@} &&\textipa{@lBi}$\sim$\textipa{@lBin@} \\
+\textipa{sa}$\sim$\textipa{san@} &&\textipa{pla}$\sim$\textipa{plan@} \\
+\textipa{bo}$\sim$\textipa{bon@} &&\textipa{s@rE}$\sim$\textipa{s@rEn@} \\
+\textipa{suBlim}$\sim$\textipa{suBlim@} &&\textipa{al}$\sim$\textipa{alt@} \\
+\textipa{fOr}$\sim$\textipa{fOrt@} &&\textipa{kur}$\sim$\textipa{kurt@} \\
+\textipa{sor}$\sim$\textipa{sorD@} &&\textipa{bEr}$\sim$\textipa{bErD@} \\
+\textipa{san}$\sim$\textipa{sant@} &&\textipa{k@lEn}$\sim$\textipa{k@lEnt@} \\
+\textipa{prufun}$\sim$\textipa{prufund@} &&\textipa{f@kun}$\sim$\textipa{f@kund@} \\
+\textipa{d@sen}$\sim$\textipa{d@sent@} &&\textipa{dulen}$\sim$\textipa{dulent@} \\
+\textipa{@stuDian}$\sim$\textipa{@stuDiant@} &&\textipa{blaN}$\sim$\textipa{blaNk@} & 
+  \end{tabular}
+\\\midrule 
+\rotatebox[origin=c]{90}{Theory}&
 \begin{tabular}{l}
-  \emph{Consonant cluster reduction:}\\
   \phonb{C}{$\varnothing$}{\#}{C}\\
   (\emph{Upon encountering a consonant (C),}\\
   \emph{ delete it ($\to\varnothing$) at the beginning of}\\
   \emph{ a word (\#\_) if followed by another}\\
   \emph{ consonant (\_C)})
   \end{tabular}
-
+&
+\begin{tabular}{l}
+Morphology:   stem$\sim$stem$+$\textipa{@}\\
+  \phonr{[ +coronal +sonorant -lateral ]}{$\varnothing$}{\#}
+\\\phonr{[ -sonorant ]}{[ -voice ]}{\#}
+\\\phonl{C}{\textipa{k}}{\textipa{N}}
+\\\phonb{[ +voice -nasal ]}{[ +continuant ]}{[ -nasal ]}{V}
+\\\phonb{V}{$\varnothing$}{[ -sonorant ]}{V}
+\\\phonb{\textipa{t}}{$\varnothing$}{C}{\#}
+\end{tabular}
   \\
   \bottomrule  \end{tabular}
-\caption{Tibetan count system.}
-\label{Tibetan}
-\end{table}
+\caption{Example morphophonologies}
+\label{exampleGrammars}
+    \end{figure}
+
 
 \begin{figure}
-  \includegraphics[width = \textwidth]{naturalLanguageGenerativeModel.pdf}
-  \caption{Theory learner induces grammars (blue) for a range of languages, given observed form/meaning pairs (pink). Grammars are expressed as programs drawn from a universal grammar, or programming language. }\label{generativeModel}
-  \end{figure}
+  \includegraphics[width = \textwidth]{languageComparison.png}
+  \caption{Basically a placeholder -- we still need to decide exactly what to put in here and how to measure success.}\label{languageComparison}
+\end{figure}
 
+\section*{The Role of Higher-Level Knowledge}
 
+No theory is built from scratch: instead, researchers borrow concepts
+and constraints from other successful theories.  Linguistics has long
+acknowledged the importance of constraints and inductive biases in
+language learning, and these principles collectively go by the name
+Universal Grammar: innate for child language learners and discovered
+empirically by linguists.
+In practice,
+both children and linguists
+may have very little data to go off,
+and thus success often hinges upon
+having the right kind of high-level knowledge.
 
-
-
-
-
-\section*{Discovering Theories by Synthesizing Programs}
-
-We frame our approach as Bayesian Program Learning (BPL: see~\cite{lake2015human}),
-where the agent explains a
-set of utterance/meaning pairs $\left\{(u_n,m_n) \right\}_{n = 1}^N$
-by inferring a theory $T$, which we model as a program.
-Formalizing grammars (theories) as generative programs has a long history in linguistics~\cite{chomsky1968sound}.
-Written as a probabilistic inference problem, the agent seeks the $T$ maximizing $\left[\prod_{n = 1}^N P(u_n,m_n | T) \right] P(T|UG)$,
-where $UG$ is a ``universal grammar'' (\textbf{TIM}: what should I cite here?)
-constraining the space of allowed theories and imparting an inductive bias over the space of grammars.
-In this BPL setting we model $UG$ as a prior distribution over theories (programs).
-To model the space of programs
-use Context-Sensitive Rewrites,
-a Turing-complete program representation,
-but restrict the rewrites
-in such a way as to make them equivalent to finite state transducers --- this insight comes from the computational linguistics literature~\cite{beesley2003finite}.
-For morphophonology,
-the relationship between meaning $m_n$ and utterance $u_n$
-involves a latent \emph{lexicon},
-which is a mapping between lexemes and the pronunciation of their stem.
-For children, linguists, and our model, the lexicon
-must also be inferred (Fig.~\ref{generativeModel}).
-
-
-
-Although this framing captures the problem a BPL theory inductor needs to solve,
-it offers no guidance on how to solve that problem:
-the space of all programs (theories) is infinitely large and
-sharply discontinuous, lacking the local smoothness that
-enables local optimization algorithms (e.g., gradient descent; MCMC)
-to succeed.
-We adopt a strategy currently unconventional to the
-AI community: constraint--based program synthesis,
-where the optimization problem is translated
-into a combinatorial constraint satisfaction 
-problem and solved using
-a SMT solver~\cite{solar2006combinatorial}.
-
-
+Our model represents and acquires this cross-theory knowledge
+by jointly inferring $UG$ along with the grammars for each data set.
+Assuming we have $D$ datasets (e.g., from different languages),
+notated $\left\{\left\{(u_n^d,m_n^d) \right\}_{n = 1}^{N_d} \right\}_{d = 1}^D$,
+we propose that a
+theory inductor construct $D$ theories, $\left\{T_d \right\}_{d = 1}^D$,
+along with a universal grammar $UG$, maximizing
+$$
+P(UG)\prod_{d = 1}^D P(T_d|UG)P(\left\{(u_n^d,m_n^d) \right\}_{n = 1}^{N_d}|T_d)
+$$
+where $P(UG)$ is a prior distribution over universal grammars.
+As a first approximation to this goal,
+we modeled the space of universal grammars
+using a formalism known as Fragment Grammars~\cite{tim},
+which work by saving and reusing pieces (`fragments')
+of the symbolic structure of tree-shaped representations.
+Here the trees are programs,
+so by inferring a Fragment Grammar across the theories for the different data sets,
+the model learns
+pieces of the higher-level structure
+found across languages.
+This automatically learned higher-level knowledge
+serves two functions:
+First, it is human interpretable:
+manually inspecting the contents of the fragment grammar reveals
+cross-language motifs previously discovered by linguists (e.g., word-final devoicing of obstruents,
+which occurs in XX\% of the world's languages).
+Second,
+it aids further theory induction:
+learning $UG$ allows the model to
+find better solutions to the textbook problems than if it solves
+each problem in isolation using a fixed,
+uninformative $UG$ (Fig.~\ref{languageComparison}).
 
 
 
 \section*{Discussion}
+
+
 
 
 
