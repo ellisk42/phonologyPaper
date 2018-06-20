@@ -191,11 +191,13 @@ utterance/meaning pairs $\left\{(u_n,m_n) \right\}_{n = 1}^N$ by
 inferring a theory $T$, which we model as a program.  Formalizing
 grammars (theories) as generative programs has a long history in
 linguistics~\cite{chomsky1968sound},
-for an intuitive reason: being procedural,
+for two intuitive reasons: being procedural,
 programs can capture the causal nature of
-both grammars and theories.
+both grammars and theories;
+and being highly structured,
+programs can be interpreted by human scientists.
 Written as a probabilistic
-inference problem, the model seeks the theory $T$ maximizing
+inference problem, our model seeks the theory $T$ maximizing
 $P(\{u_n,m_n\}_{n = 1}^N | T)P(T|UG)$, where $UG$ is a ``universal
 grammar'' encapsulating  higher-level abstract knowledge across
 different languages.  In this BPL setting we model $UG$ as a prior
@@ -234,8 +236,7 @@ the space of all programs (theories) is infinitely large and
 sharply discontinuous, lacking the local smoothness that
 enables local optimization algorithms (e.g., gradient descent; MCMC)
 to succeed.
-We adopt a strategy currently unconventional to the
-AI community: constraint--based program synthesis,
+We adopt a strategy based on constraint--based program synthesis,
 where the optimization problem is translated
 into a combinatorial constraint satisfaction 
 problem and solved using
@@ -373,8 +374,8 @@ No theory is built from scratch: instead, researchers borrow concepts
 and constraints from other successful theories.  Linguistics has long
 acknowledged the importance of constraints and inductive biases in
 language learning, and these principles collectively go by the name
-Universal Grammar: innate for child language learners and discovered
-empirically by linguists.
+Universal Grammar: innate for child language learners and 
+empirically probed by linguists.
 In practice,
 both children and linguists
 may have very little data to go off,
@@ -419,13 +420,24 @@ uninformative $UG$ (Fig.~\ref{languageComparison}).
 
 \section*{Discussion}
 
-
-
-
-
-
-
-
+Theory induction is a grand challenge for AI,
+and our work here
+captures only small slices of
+the theory building process.
+Like our model, human theorists
+do craft models
+by examining experimental data,
+but also propose new theories by
+unifying existing theoretical frameworks,
+performing `thought experiments',
+and inventing new formalisms.
+Humans also deploy their theories more richly than our model:
+proposing new experiments to test theoretical predictions,
+engineering new tools based on the conclusions of a theory,
+and distilling higher-level knowledge that goes far beyond what our
+Fragment-Grammar approximation can represent.
+Continuing to push theory induction along these many dimensions 
+remains a prime target for future research.
 
 
 
