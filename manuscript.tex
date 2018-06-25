@@ -111,23 +111,62 @@ An age-old aspiration within artificial intelligence research is to
 build a machine that helps automate the scientific process by
 synthesizing theories or
 models~\cite{paul1990autonomous,langley1987scientific,schmidt2009distilling}.
-This aspiration remains largely unrealized: despite a few
-small-scale successes on toy problems~\cite{Langley1981BACON5TD},
-practicing scientists do not use machines to generate theories.
-In contrast, AI has made great strides
-on problems like machine vision and natural language processing.  How
-can the artificial intelligence community get theory induction off the
-ground?  This is an especially difficult question, because the current
-mainstream in machine intelligence focuses on qualitatively different
-classes of problems (e.g., prediction tasks like classification and
-regression), whereas theory induction requires synthesizing
-human-understandable causal models of real-world
-phenomena~\cite{pearl2009causality}, so that human scientists can
-understand and learn from the AI's outputs.
+This aspiration remains largely unrealized: despite small-scale
+demonstrations of machine-assisted theory
+induction~\cite{Langley1981BACON5TD,schmidt2009distilling}, practicing
+scientists do not use machines to generate theories.  In contrast, AI
+has made great strides on problems like machine vision and natural
+language processing.  How can the artificial intelligence community
+get theory induction off the ground?  This is an especially difficult
+question, because the current mainstream in machine intelligence
+focuses on qualitatively different classes of problems (e.g.,
+prediction tasks like classification and regression), whereas theory
+induction requires synthesizing human-understandable causal models of
+real-world phenomena~\cite{pearl2009causality}, so that human
+scientists can understand and learn from the AI's outputs.
+
+Theory induction is a challenge both for the natural sciences and AI,
+with connections to questions in cognitive development.
+Children, like scientists,
+build systems of laws and concepts
+to explain the world around them,
+building intuitive theories of kinship, biology, physics, number,
+grammar, and other domains, motivating the `child as scientist' metaphor~\cite{childAsScientist}.
+To bridge these different kinds of theory induction---in scientists, children, and machines---
+we propose theory induction research start with theories of human language,
+for several reasons.
+First, scientists, specifically linguists,
+%% build theories of language starting from
+%% experimental data (utterances paired with their meanings),
+%% and 
+have compiled large corpora 
+from a variety of languages,
+giving a rich and varied dataset for benchmarking theory induction algorithms.
+Second, children easily acquire language from
+modest amounts of data,
+suggesting that
+inducing theories of language is tractable,
+even from sparse data;
+and also suggesting that accounts of
+linguistic theory induction
+could shed light on language acquisition.
+Going back to at least Chomsky,
+linguists have sometimes thought of the acquisition problem as
+approximating the problem facing the linguist~\cite{chomsky1956three,chomsky1988current}.
+Third,
+theories of language
+are traditionally formalized in computational terms,
+exposing a suite of formalisms ready to be deployed by AI researchers.
+These three features of human language --- the availability of many highly-varied datasets,
+the interfaces with cognitive development,
+and the computational formalisms within linguistics ---
+conspire to single out language as an especially suitable target for
+research in automated theory induction.
 
 
-We propose theory induction research start with theories of human
-language, and introduce a model of theory induction for a
+
+We have proposed theory induction research start with theories of human
+language, and here introduce a model of theory induction for a
 key module of natural language: \emph{morphophonology}, the
 relationship between word pronunciation and meaning.
 Acquiring the morphophonology of a language involve solving a basic
@@ -146,7 +185,6 @@ researcher to draw upon.  Third, we know that acquiring theories of
 language (e.g., grammars) is tractable, because children 
 acquire language, and field linguists can be trained to build theories of grammar.
 \end{comment}
-
 Our contribution is a model for synthesizing theories of natural
 language morphophonology.  Like linguists, the model starts with a
 collection of utterances paired with meanings, and then constructs a
