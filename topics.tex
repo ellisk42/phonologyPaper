@@ -1,5 +1,7 @@
 \documentclass{article}
 
+
+\usepackage{verbatim}
 \usepackage{amsmath}
 \usepackage[margin=0.1in]{geometry}
 \usepackage{booktabs}
@@ -26,26 +28,28 @@
 \newcommand{\Expect}{\mathds{E}} %{{\rm I\kern-.3em E}}
 \newcommand{\indicator}{\mathds{1}} %{{\rm I\kern-.3em E}}
 \newcommand{\expect}{\mathds{E}} %{{\rm I\kern-.3em E}}
-\newcommand{\probability}{\mathds{P}} %{{\rm I\kern-.3em P}}
 
 \begin{document}
 \maketitle
 
 
-\section{Automatically generating grammars with Bayesian program learning}
+\section{Hypothesis generation}
+\label{althyp}
 
-\subsection{A Probabilistic Framing}
+\newcommand{\probability}[1]{P\left(#1 \right)} %{{\rm I\kern-.3em P}}
 
 A goal of the grammar learner, whether it is a child, linguist, or computer program, is to
 infer the grammar that gave rise to
 a collection of utterances.
-One way of
-modeling this inference problem is to (1) place a prior distribution over grammars, for example, a distribution that puts more probability mass on shorter or simpler grammars; (2) equip each grammar with a
+In reference to the previous section (Sec.~\ref{modelselection}),
+we can think of this as a kind of \emph{exploratory data analysis}.
+One way of formalizing
+ this inference problem is to (1) place a prior distribution over grammars, for example, a distribution that puts more probability mass on shorter or simpler grammars; (2) equip each grammar with a
 \emph{likelihood model} that specifies exactly how likely a grammar is to produce a given utterance;
 and then (3) use Bayes's rule to work backwards from the
 utterances to the grammar that was likely to produce them:
 \begin{equation}
-  \probability\left[\text{grammar}|\text{utterances} \right]\propto\underbrace{\probability\left[\text{utterances}|\text{grammar} \right]}_{\text{Likelihood}}\times\underbrace{\probability\left[\text{grammar} \right]}_{\text{Prior}}\label{posterior}
+  \probability{\text{grammar}|\text{utterances}}\propto\underbrace{\probability{\text{utterances}|\text{grammar} }}_{\text{Likelihood}}\times\underbrace{\probability{\text{grammar} }}_{\text{Prior}}\label{posterior}
 \end{equation}
 We can think of the above equation as a recipe for
 scoring how well a grammar explains a
@@ -53,76 +57,77 @@ collection of utterances.
 Once we have a prior and a likelihood,
 we know how to evaluate how well a grammar explains the data, modulo the assumptions implicit in the
 prior and likelihood.
-In this work we will use this probabilistic framing
-to explore spaces of grammars
-that an AGL learner could use to explain
-the pronunciations of words.
-Here the grammars will be SPE-style rewrite rules~\cite{chomsky1968sound},
+Our goal will be both to automatically recover the single best grammar maximizing~\ref{posterior},
+as well as systematically exploring and generating the space of possible grammars (i.e. hypotheses).
+
+Here we consider an AGL learner tasked with learning a grammar generating different word forms,
+for example those in~\citep{marcus1999rule,gerken2010infants}.
+We model these grammars as context-sensitive rewrite rules~\citep{chomsky1968sound},
 commonly used in generative phonology,
 but at a high level this framing can apply to
-learning other aspects of grammar like semantics~\cite{piantadosi2011learning}, syntax~\cite{perfors2011learnability}, and morphology~\cite{tim}.
-
-\noindent\textbf{SPE-style rewrite notation:} Each SPE-style rewrite rule is a function that both inputs and outputs a sequence of phonemes.
+learning other aspects of grammar like semantics~\citep{piantadosi2011learning}, syntax~\citep{perfors2011learnability}, and morphology~\citep{tim}.
+%
+%\noindent\textbf{Context-sensitive rewrite notation:} 
+Each  rewrite rule is a function that both inputs and outputs a sequence of phonemes.
 These rewrites are written as ``\phonb{input}{output}{left}{right}'' %$\text{input}\to\text{output }/\text{ left } \_ \text{ right}$'',
 which means that ``input'' gets rewritten to ``output'' whenever ``left'' is to the left and ``right'' is to the right.
-Some special symbols used in these rules are \# to mean the start or end of the input;
-C/V to mean a consonant/vowel; $\sigma $ to mean a syllable;
-and $\varnothing$ to mean the empty string.
-For example, the rule
-\phonb{$\sigma $}{$\varnothing$}{\#}{C}
-deletes a syllable at the start of a word if it is followed by a consonant.
-Rules can refer to sets of phonemes by writing down vectors of phonological features -- for example,
-the rule \phon{[-son]}{[+voice]} rewrites segments that are -sonorant (e.g., \textipa{k,d,v,S,...}) to their voiced counterparts (e.g., \textipa{g,d,v,Z,...}).
-Rules can also bind variables to phonemes or syllables,
-which are written using subscripts;
-for example,
-\phonr{C$_i$}{$\varnothing$}{C$_i$}
+%JZ: examples and notation moves to figure caption
+%Some special symbols used in these rules are \# to mean the start or end of the input; C/V to mean a consonant/vowel; $\sigma $ to mean a syllable; and $\varnothing$ to mean the empty string. For example, the rule \phonb{$\sigma $}{$\varnothing$}{\#}{C} deletes a syllable at the start of a word if it is followed by a consonant.
+Rules can refer to sets of phonemes by writing down vectors of phonological features;
+%-- for example, the rule \phon{[-son]}{[+voice]} rewrites segments that are -sonorant (e.g., \textipa{k,d,v,S,...}) to their voiced counterparts (e.g., \textipa{g,d,v,Z,...}).
+rules can also bind variables to phonemes or syllables.
+%which are written using subscripts;
+%for example, \phonr{C$_i$}{$\varnothing$}{C$_i$}
 %$\text{\texttt{C}}_i\to\varnothing / \_ \text{\texttt{C}}_i$
-deletes a consonant if it is followed by the same consonant,
-and
-\phonb{$ \varnothing $}{$\sigma _i$}{\#}{$\sigma _i$}
+%deletes a consonant if it is followed by the same consonant,and
+%\phonb{$ \varnothing $}{$\sigma _i$}{\#}{$\sigma _i$}
 %$\varnothing\to\sigma_i / \text{\texttt{\#}}\_\sigma_i$
-inserts a copy of a word initial syllable.
-The special subscript ``0" means zero or more occurrences of the subscripted segment,
-so for example \phonl{V}{[+hi]}{[+hi][ ]$_0$} means that vowels become +hi whenever there exists a +hi phoneme anywhere to the left.
+%inserts a copy of a word initial syllable.
+%The special subscript ``0" means zero or more occurrences of the subscripted segment,
+%so for example \phonl{V}{[+hi]}{[+hi][ ]$_0$} means that vowels become +hi whenever there exists a +hi phoneme anywhere to the left.
 
-\noindent \textbf{Prior \& Likelihood:} A simple and intuitive prior over grammars is one which penalizes longer grammars and favors parsimonious grammars, for example defining $\probability\left[\text{grammar} \right]\propto\exp\left(- \text{\# symbols in grammar} \right)$. An example of a likelihood model,
+%\noindent \textbf{Prior \& Likelihood:} 
+Given a collection of rewrite rules that define possible sequences of phonemes, we can define \emph{prior} probabilities over grammars, and the \emph{likelihood} of the data given a grammar. 
+A simple and intuitive prior over grammars is one which penalizes longer grammars and favors parsimonious grammars, for example defining
+$$\probability{\text{grammar} }\propto\exp\left(- \text{\# symbols in grammar} \right)$$
+An example of a likelihood model,
 and the one we use here,
-is just to count the number of extra bits or symbols needed to encode an utterance given the grammar\footnote{This is equivalent to a minimum description length (MDL) interpretation}.
+is just to count the number of extra bits or symbols needed to encode an utterance given the grammar\footnote{This is equivalent to a minimum description length (MDL) interpretation.}.
 
-Now in theory this probabilistic framing
-has now bought us a procedure for automatically discovering
+In theory, this probabilistic framing
+has now bought us a procedure for automatically generating
 grammars that do a good job explaining the data.
 In practice,
 the space of all grammars is infinite and combinatorial,
 and so cashing out this framing requires a
-efficient procedure for searching the space of grammars and honing in on those that maximize Equation~\ref{posterior}.
+efficient procedure for searching the space of grammars and honing in on those that maximize equation~\ref{posterior}.
 A subfield of computer science, called \textbf{program synthesis},
 has developed efficient techniques for
 solving seemingly intractable combinatorial search problems
 like those that arise in grammar learning.
-We use a program synthesis tool called Sketch~\cite{solar2008program}
-to search for grammars maximizing~\ref{posterior},
+We use a program synthesis tool called Sketch~\citep{solar2008program}
+to search for grammars maximizing equation~\ref{posterior},
 which was previously applied to language learning problems in~\cite{ellis2015unsupervised}.
 For more detail on these program synthesis techniques we refer the reader to~\cite{solar2008program}.
 This cashing out of the framing makes
-our approach an instance of  \textbf{Bayesian Program Learning (BPL)}; see~\cite{lake2015human}.
+our approach an instance of  \textbf{Bayesian Program Learning}; see~\cite{lake2015human}.
 
+%\subsection{Modeling solutions to AGL problems}
 
-\subsection{Modeling solutions to AGL problems}
-
-
+\begin{comment}
 The fundamental hypothesis underlying AGL research is that
 artificial grammar learning must engage some shared resource with first language acquisition --
 and so we can gain insights into first language acquisition by
 instead studying AGL in controlled experiments.
-Our demonstration here is that
-a BPL model can explain how a learner can quickly (e.g., from very little data) infer a grammar represented as SPE--style rules.
-We collected grammars from AGL datasets~\cite{gerken2010infants,marcus1999rule,frank2011three}
-and presented our BPL learner with data drawn from these grammars (Table~\ref{artificialGrammarTable}),
-finding that our model automatically discovers the grammars that
+Our contribution here is the demonstration that
+a single Bayesian program learning model can explain how a learner can quickly infer a grammar represented as context--sensitive rewrites.
+We collected grammars from AGL datasets~\citep{gerken2010infants,marcus1999rule,frank2011three}
+and presented our model with data drawn from these grammars (Table~\ref{artificialGrammarTable}),
+finding that the learner automatically discovers the grammars that
  underly these data sets.
-\begin{table}[h!]
+\end{comment}
+%
+\begin{table}[htbp]
 \centering\begin{tabular}{lcll}
   \toprule
   Grammar&\begin{tabular}{c}
@@ -130,7 +135,7 @@ finding that our model automatically discovers the grammars that
     \end{tabular}&Inferred grammar&Natural language analogues\\\midrule
   \begin{tabular}{l}
     ABA \\
-  Marcus et al. 1999.     
+%  Marcus et al. 1999.     
     \end{tabular}&
   \begin{tabular}{l}
     wofewo\\
@@ -144,7 +149,7 @@ finding that our model automatically discovers the grammars that
   \\\midrule
   \begin{tabular}{l}
       ABB\\
-  Marcus et al. 1999. 
+%  Marcus et al. 1999. 
     \end{tabular}&
   \begin{tabular}{l}
         wofefe\\
@@ -169,7 +174,7 @@ stem$+x$
   \end{tabular}&concatenative morphology
   \\\midrule
   \begin{tabular}{l}
-    AAx \\Gerken 2006. %~\cite{gerken2010infants}
+    AAx \\%Gerken 2006. %~\cite{gerken2010infants}
     \end{tabular}&
   \begin{tabular}{l}
         wowoka\\
@@ -185,7 +190,7 @@ stem$+x$
     reduplication\\concatenative morphology
     \end{tabular}\\\midrule
   \begin{tabular}{l}
-    AxA \\Gerken 2006. %~\cite{gerken2010infants}
+    AxA \\%Gerken 2006. %~\cite{gerken2010infants}
     \end{tabular}&
   \begin{tabular}{l}
         wokawo\\
@@ -219,29 +224,44 @@ stem$+x$
   \end{tabular}  & \begin{tabular}{l}
     \end{tabular}
 \\  \bottomrule  \end{tabular}
-\caption{Using BPL to model artificial grammar learning. Model given 5 examples.}\label{artificialGrammarTable}
+\caption{Using Bayesian program learning to model artificial grammar learning. Each model given 5 examples. Grammars ABA and ABB are from Marcus et al. 1999; grammars AAx and AXA from Gerken, 2006.
+Some special symbols used in the grammar rules are \# to mean the start or end of the input; C/V to mean a consonant/vowel; $\sigma $ to mean a syllable; and $\varnothing$ to mean the empty string. For example, the rule \phonb{$\sigma $}{$\varnothing$}{\#}{C} deletes a syllable at the start of a word if it is followed by a consonant.
+The rule \phon{[-son]}{[+voice]} rewrites segments that are -sonorant (e.g., \textipa{k,d,v,S,...}) to their voiced counterparts (e.g., \textipa{g,d,v,Z,...}).
+The rule \phonr{C$_i$}{$\varnothing$}{C$_i$}
+%$\text{\texttt{C}}_i\to\varnothing / \_ \text{\texttt{C}}_i$
+deletes a consonant if it is followed by the same consonant,
+and
+\phonb{$ \varnothing $}{$\sigma _i$}{\#}{$\sigma _i$}
+%$\varnothing\to\sigma_i / \text{\texttt{\#}}\_\sigma_i$
+inserts a copy of a word initial syllable.
+The special subscript ``0" means zero or more occurrences of the subscripted segment,
+so for example \phonl{V}{[+hi]}{[+hi][ ]$_0$} means that vowels become +hi whenever there exists a +hi phoneme anywhere to the left.
+}\label{artificialGrammarTable}
 \end{table}
 
-\subsection{Automatically exploring the space of alternative hypotheses}
+%\subsection{Automatically exploring the space of alternative hypotheses}
 
-Just like in first language acquisition,
-these AGL learning setups introduce a trade-off between
-grammars that are likely under the prior (and are therefore small; ``parsimony'')  and grammars that
-assign high likelihood to the data (and therefore closely ``fit the data'', having high likelihood).
-For example, a learner could infer a grammar that just memorized to the data (perfect fit but poor parsimony)
+The fundamental hypothesis underlying AGL research is that
+artificial grammar learning must engage some cognitive resource shared with first language acquisition. To gain insights into first language acquisition, we 
+instead study AGL in controlled experiments.
+In particular, we are interested in how the human mind deals with the trade-off between
+grammars that are \emph{a priori} probable (the prior prefers small grammars; ``parsimony''), and grammars that
+assign high likelihood to the data (and therefore closely ``fit the data'').
+For example, a learner could infer a grammar that just memorized the data (perfect fit but poor parsimony)
 or it could infer a grammar that can generate every
 possible word (parsimonious but a poor fit).
 Effective grammar learners must navigate this trade-off.
 
-To analyze this trade-off, we calculated its shape in the form of a
-\textbf{pareto front}~\cite{mattson2005pareto}.
-In our setting, a pareto front is the set of all grammars that
+To analyze this trade-off, we present the model with artificial data drawn from grammars used in a series of AGL experiments~\citep{gerken2010infants,Marcus1999,frank2011three}. The grammars used (and the notation we use for them) are described in Table~\ref{artificialGrammarTable}. 
+
+Rather than producing a single grammar -- a single hypothesis on the grammar a child might acquire in such an experiment -- we use the model to search a massive space of possible grammars and compute all those grammars that are optimal solutions to the trade-off given some weighting of parsimony and fit to data. That is, we search for the set of grammars that
 are not worse than another grammar along
-the two competing axes of parsimony and fit to data.
+the two competing axes; this set is called the \textbf{pareto front}~\citep{mattson2005pareto}.
 Intuitively, grammars on the pareto front
-are ones which an ideal Bayesian or MDL learner prefers,
+are ones which an ideal Bayesian learner prefers,
 \emph{independent} of how the learner decides to
 relatively weight the prior and likelihood.
+
 Figure~\ref{quadrupleFrontier}
 diagrams the Pareto fronts for two AGL experiments
 as the number of
@@ -250,10 +270,7 @@ What these Pareto fronts show is (1)
 the set of grammars entertained by the learner,
 and (2) how the learner weighs these grammars against each other
 as measured by the prior (parsimony) and the likelihood (fit to the data).
-We believe that the Pareto front is a useful way of
-viewing the space of possible grammars,
-and understanding the different trade-offs
-between the grammars.
+%We believe that the Pareto front is a useful way of viewing the space of possible grammars, and understanding the different trade-offs between the grammars.
 
 As an example of how the Pareto front offers a lens on the
 space of possible hypotheses,
@@ -261,21 +278,21 @@ consider the upper left Pareto front in figure~\ref{quadrupleFrontier} (\emph{aa
 Here the learner has seen a single word, [\textipa{vEfefe}].
 Some grammars living on the Pareto frontier are:
 \begin{itemize}
-\item \textbf{A grammar that does nothing:} In the lower right-hand corner of~\ref{quadrupleFrontier}
+\item \textbf{A grammar that generates every possible word:} In the lower right-hand corner of Figure~\ref{quadrupleFrontier}
   is the grammar labeled ``surface=underlying'',
   which just says that every word (a ``surface pronunciation'')
   is represented (``underlyingly'') literally how it is pronounced.
   The observed word [\textipa{vEfefe}] is represented as /\textipa{vEfefe}/, which has 6 symbols,
   giving a fit to the data of -6.
-\item \textbf{A grammar that duplicates syllables:} Highlighted in dark red in~\ref{quadrupleFrontier}
+\item \textbf{A grammar that duplicates syllables:} Highlighted in dark red in Figure~\ref{quadrupleFrontier}
   is a grammar with the single rule
   \phonr{$\varnothing $}{  $\sigma _i$}{$\sigma _i$\#}
   %$\varnothing\to\sigma_i/\_\sigma_i$\texttt{\#},
-  which inserts a copy of the last syllable syllable.
+  which inserts a copy of the last syllable.
   This rule generates the word [\textipa{vEfefe}] by starting with the stem (i.e., underlying form) /\textipa{vEfe}/ (which has 4 symbols, fit to data of -4) and then applying the rule in the grammar,
   which copies the last syllable and makes [\textipa{vEfefe}].
 \item \textbf{A grammar that duplicates syllables and appends
-  morphemes:} Highlighted in pink in~\ref{quadrupleFrontier} are
+  morphemes:} Highlighted in pink in Figure~\ref{quadrupleFrontier} are
   grammars that duplicate a syllable but also append or prepend extra
   morphemes.  These correspond to generalizations where the learner
   believes that different parts of [\textipa{vEfefe}] correspond to
@@ -287,15 +304,22 @@ Some grammars living on the Pareto frontier are:
   it, but at the cost of having many symbols inside of the grammar (22 symbols, vs 6 symbols in the grammar that just duplicates a syllable).  
   \end{itemize}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 
 \includegraphics[width = 0.5\textwidth]{alternativeHypothesesFigures/abb1.png} \includegraphics[width = 0.5\textwidth]{alternativeHypothesesFigures/abb3.png}
 \includegraphics[width = 0.5\textwidth]{alternativeHypothesesFigures/aax1.png} \includegraphics[width = 0.5\textwidth]{alternativeHypothesesFigures/aax3.png}
   
-  \caption{Pareto fronts for ABB  (Marcus~1999; top two) \& AAX  (Gerken~2006; bottom two) learning problems fo either one example word (left column) or three example words  (right column). Rightward on x-axis corresponds to more parsimonious grammars and upward on y-axis corresponds to grammars that best fit the data, so the best grammars live in the upper right corners of the graphs. {\color{red}Red shade}: ground truth grammar. {\color{red!60}Pink shade}: shares structure with ground truth grammar. White shade: incorrect generalizations. As the number of examples increases, the Pareto fronts develop a sharp kink around the ground truth grammar, which indicates a stronger preference for the correct grammar. With one example the kinks can still exists but are less pronounced.}\label{quadrupleFrontier}
+  \caption{Pareto fronts for ABB  (Marcus~1999; top two) \& AAX  (Gerken~2006; bottom two) learning problems for either one example word (left column) or three example words  (right column). Rightward on x-axis corresponds to more parsimonious grammars and upward on y-axis corresponds to grammars that best fit the data, so the best grammars live in the upper right corners of the graphs. {\color{red}Red shade}: ground truth grammar. {\color{red!60}Pink shade}: shares structure with ground truth grammar. White shade: incorrect generalizations. As the number of examples increases, the Pareto fronts develop a sharp kink around the ground truth grammar, which indicates a stronger preference for the correct grammar. With one example the kinks can still exist but are less pronounced.}\label{quadrupleFrontier}
 \end{figure}
 
-\subsection{Beyond artificial grammars: Applying BPL to natural language}
+%\margincomment{Tim: Is this an okay explanation of why we might want to explore the set of different possible hypotheses as opposed to just taking one of them?} 
+
+Grammar induction is an under constrained problem, and in general there are infinitely many grammars that could explain a collection of utterances. Despite this ambiguity, both children and linguists can make plausible inferences about which grammars best explain a data set. The computational tools shown here offer a generic way of generating and visualizing the range of alternative hypotheses, and explaining why a child, linguist, or computer program might prefer one over the other.
+
+
+\begin{comment}
+
+\subsection{Beyond artificial grammars: Applying Bayesian program learning to natural language}
 
 A successful model of artificial grammar learning should also explain
 at least some aspects of first language acquisition.  As a first step
@@ -354,6 +378,11 @@ Number & Surface form
   \end{minipage}
   \caption{Example textbook phonology exercise (left, taken from~\cite{9780511808869}) and the solution our model discovers for it (right). To solve this problem the model must jointly infer unobserved underlying representations for each of the Tibetan numbers, along with a phonological rule that explains their surface pronunciations. The same code that calculated the Pareto fronts (Figure~\ref{quadrupleFrontier}) produces this analysis of the Tibetan count system.}\label{naturalLanguageExample}
   \end{figure}
+\end{comment}
+
+
+
+
 
 
 
